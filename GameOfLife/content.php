@@ -1,10 +1,11 @@
-<script type="text/javascript">
+﻿<script type="text/javascript">
 	
 	var refreshInterval;
 	
 	var gameDim;
 	
 	//x_y presetDefinitions relative to middle & including 0,0
+	
 	var presets = {
 		'Buddhist Luck': ["-2:-3","-1:-3","0:-3","0:-2","0:-1","0:0","0:1","0:2","0:3","1:3","2:3","-1:0","-2:0","-3:0","-3:1","-3:2","1:0","2:0","3:0","3:-1","3:-2"],
 		'SquareTest'  : ["-3:-3","-2:-3","-1:-3","0:-3","1:-3","2:-3","3:-3","-3:-2","0:-2","3:-2","-3:-1","0:-1","3:-1","-3:0","0:0","3:0","-3:1","0:1","3:1","-3:2","0:2","3:2","-3:3","-2:3","-1:3","0:3","1:3","2:3","3:3"]
@@ -36,13 +37,12 @@
 		//Generate Slider
 		document.write("<input type=\"range\" min=\"0\" max=\"100\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label>");
 		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/>");
+		
+		//Option field for preset choice
 		document.write('<label>Presets:    '+
 						'<select name="presets" id="presets" size="1">      '+
 						  '<option>Buddhist Luck</option> '+
-						  '<option>SquartTest</option>'+
-						  '<option>SquartTest1</option>'+
-						  '<option>SquartTest3</option>'+
-						  '<option>SquartTest2</option>'+
+						  '<option>SquartTest</option>' +
 						'</select>'+
 					  '</label>');
 	
