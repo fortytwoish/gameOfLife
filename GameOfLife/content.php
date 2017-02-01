@@ -6,8 +6,9 @@
 	
 	//x_y presetDefinitions relative to middle & including 0,0
 	var presets = {
-		'Sauwastika'	: ["-2:-3","-1:-3","0:-3","0:-2","0:-1","0:0","0:1","0:2","0:3","1:3","2:3","-1:0","-2:0","-3:0","-3:1","-3:2","1:0","2:0","3:0","3:-1","3:-2"],
-		'SquareTest'  	: ["-3:-3","-2:-3","-1:-3","0:-3","1:-3","2:-3","3:-3","-3:-2","0:-2","3:-2","-3:-1","0:-1","3:-1","-3:0","0:0","3:0","-3:1","0:1","3:1","-3:2","0:2","3:2","-3:3","-2:3","-1:3","0:3","1:3","2:3","3:3"]
+		'Sauwastika'	: 	["-2:-3","-1:-3","0:-3","0:-2","0:-1","0:0","0:1","0:2","0:3","1:3","2:3","-1:0","-2:0","-3:0","-3:1","-3:2","1:0","2:0","3:0","3:-1","3:-2"],
+		'SquareTest'  	: 	["-3:-3","-2:-3","-1:-3","0:-3","1:-3","2:-3","3:-3","-3:-2","0:-2","3:-2","-3:-1","0:-1","3:-1","-3:0","0:0","3:0","-3:1","0:1","3:1","-3:2",
+						     "0:2","3:2","-3:3","-2:3","-1:3","0:3","1:3","2:3","3:3"]
 	};
 	
 	function randomBoard()
@@ -29,13 +30,12 @@
 	}
 	
 	function generateBoard(_gameDim)
-	{		
-		
+	{
 		gameDim = _gameDim;
-	
 		//Generate Slider
 		document.write("<input type=\"range\" min=\"0\" max=\"100\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label>");
 		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/>");
+		
 		document.write('<label>Presets:    '+
 						'<select name="presets" id="presets" size="1">      '+
 						  '<option>Sauwastika</option> '+
@@ -175,19 +175,16 @@
 		{
 			getCellDiv(x, y).className = "aliveGameCell";
 		}
-
 	}
 			
 	function insertPreset($presetName)
 	{
 		var presetValues = new Array(200);
 		var strUser = ""; 
-		var e = document.getElementById("presets");
+		var optionBox = document.getElementById("presets");
 		
-		
-		
-		if(e != null)
-			strUser = e.options[e.selectedIndex].text;
+		if(optionBox != null)
+			strUser = optionBox.options[optionBox.selectedIndex].text;
 		
 		console.log(strUser);
 		
@@ -209,7 +206,6 @@
 			var tmp = item.split(':');
 			var middle = Math.floor(gameDim / 2);
 			console.log("x : "  +tmp[0] + " y: " +tmp[1]);
-			
 			getCellDiv(middle+ parseInt(tmp[0]), middle+ parseInt(tmp[1])).className = "aliveGameCell";			
 		});
 	}
