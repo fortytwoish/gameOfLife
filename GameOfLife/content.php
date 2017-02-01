@@ -1,14 +1,13 @@
-﻿<script type="text/javascript">
+<script type="text/javascript">
 	
 	var refreshInterval;
 	
 	var gameDim;
 	
 	//x_y presetDefinitions relative to middle & including 0,0
-	
 	var presets = {
-		'Buddhist Luck': ["-2:-3","-1:-3","0:-3","0:-2","0:-1","0:0","0:1","0:2","0:3","1:3","2:3","-1:0","-2:0","-3:0","-3:1","-3:2","1:0","2:0","3:0","3:-1","3:-2"],
-		'SquareTest'  : ["-3:-3","-2:-3","-1:-3","0:-3","1:-3","2:-3","3:-3","-3:-2","0:-2","3:-2","-3:-1","0:-1","3:-1","-3:0","0:0","3:0","-3:1","0:1","3:1","-3:2","0:2","3:2","-3:3","-2:3","-1:3","0:3","1:3","2:3","3:3"]
+		'Sauwastika'	: ["-2:-3","-1:-3","0:-3","0:-2","0:-1","0:0","0:1","0:2","0:3","1:3","2:3","-1:0","-2:0","-3:0","-3:1","-3:2","1:0","2:0","3:0","3:-1","3:-2"],
+		'SquareTest'  	: ["-3:-3","-2:-3","-1:-3","0:-3","1:-3","2:-3","3:-3","-3:-2","0:-2","3:-2","-3:-1","0:-1","3:-1","-3:0","0:0","3:0","-3:1","0:1","3:1","-3:2","0:2","3:2","-3:3","-2:3","-1:3","0:3","1:3","2:3","3:3"]
 	};
 	
 	function randomBoard()
@@ -37,12 +36,13 @@
 		//Generate Slider
 		document.write("<input type=\"range\" min=\"0\" max=\"100\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label>");
 		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/>");
-		
-		//Option field for preset choice
 		document.write('<label>Presets:    '+
 						'<select name="presets" id="presets" size="1">      '+
-						  '<option>Buddhist Luck</option> '+
-						  '<option>SquartTest</option>' +
+						  '<option>Sauwastika</option> '+
+						  '<option>SquareTest</option>'+
+						  '<option>SquartTest1</option>'+
+						  '<option>SquartTest3</option>'+
+						  '<option>SquartTest2</option>'+
 						'</select>'+
 					  '</label>');
 	
@@ -77,8 +77,6 @@
 		{
 			refreshInterval = setInterval( tick, (1.0/newValue) * 1000 );
 		}
-		
-
 	}
 	
 	function tick()
@@ -182,7 +180,7 @@
 			
 	function insertPreset($presetName)
 	{
-		$presetValues = new Array(200);
+		var presetValues = new Array(200);
 		var strUser = ""; 
 		var e = document.getElementById("presets");
 		
@@ -194,27 +192,25 @@
 		console.log(strUser);
 		
 		switch(strUser){
-				case 'Buddhist Luck':
-					$presetValues =  presets['Buddhist Luck'];
+				case 'Sauwastika':
+					presetValues =  presets['Sauwastika'];
 					break;
 				case 'SquareTest':	
-					$presetValues =  presets['SquareTest'];
+					presetValues =  presets['SquareTest'];
 					break;
 				default:
 					break;
 		}
 		
-		$presetValues.forEach(function(item){
-			
+		console.log(presetValues)
+		
+		presetValues.forEach(function(item)
+		{		
 			var tmp = item.split(':');
 			var middle = Math.floor(gameDim / 2);
-		//	console.log(getCellDiv($tmp[0],$tmp[1]));
-			
 			console.log("x : "  +tmp[0] + " y: " +tmp[1]);
 			
-			getCellDiv(middle+ parseInt(tmp[0]), middle+ parseInt(tmp[1])).className = "aliveGameCell";
-			
-			
+			getCellDiv(middle+ parseInt(tmp[0]), middle+ parseInt(tmp[1])).className = "aliveGameCell";			
 		});
 	}
 	
@@ -229,7 +225,7 @@ class Content
 	private $userName   = '';
 	private $isStopped  = true;
 	
-	private $gameDim = 15; //Predefined for now //Should be odd always to guarantee middle
+	private $gameDim = 31; //Predefined for now //Should be odd always to guarantee middle
 	
 	public function __construct()
 	{
@@ -311,9 +307,7 @@ class Content
 		}
 		else if($gameBtn == "Reset")
 		{
-			echo "<script> insertPreset(); </script>";
-			console.log("ÖLJÖLKJÖLKJÖJL");
-			
+					
 		}
 		
 		echo '<form action="welcome.php" method="POST">';
