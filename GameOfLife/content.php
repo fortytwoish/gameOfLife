@@ -1,8 +1,31 @@
 <script type="text/javascript">
 	
+	const FRAMERATE = 60;
+	
 	var refreshInterval;
+	var timerInterval;	
+	var displayInterval;
 	
 	var gameDim;
+	
+	var iterations = 0;
+	var seconds = 0;
+	
+	var board;
+	var changes = new Map();
+	
+	//Can create multidimensional arrays
+	function createArray(length) {
+		var arr = new Array(length || 0),
+			i = length;
+
+		if (arguments.length > 1) {
+			var args = Array.prototype.slice.call(arguments, 1);
+			while(i--) arr[length-1 - i] = createArray.apply(this, args);
+		}
+
+		return arr;
+	}
 	
 	function randomBoard()
 	{
@@ -13,10 +36,12 @@
 				if(Math.random() < 0.5)
 				{
 					getCellDiv(x,y).className = "deadGameCell";
+					board[x][y] = false;
 				}
 				else
 				{
 					getCellDiv(x,y).className = "aliveGameCell";
+					board[x][y] = true;
 				}
 			}
 		}
@@ -26,10 +51,13 @@
 	{		
 		
 		gameDim = _gameDim;
+		
+		board = createArray(gameDim, gameDim);
 	
 		//Generate Slider
 		document.write("<input type=\"range\" min=\"0\" max=\"100\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label>");
-		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/>");
+		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/> ");
+		document.write("<label id=\"generationsLabel\"></label>");
 	
 		//Generate table
 	
@@ -43,6 +71,7 @@
 				document.write("<td>");
 				document.write("	<div class=\"deadGameCell\" id=\"cell_"+j+"_"+i+"\" onclick=\"cellClick("+j+", "+i+")\"/>");
 				document.write("</td>");
+				board[j][i] = false;
 			}
 			document.write("</tr>");
 		}
@@ -56,18 +85,32 @@
 		if(refreshInterval != null)
 		{
 			clearInterval(refreshInterval);
+			clearInterval(timerInterval);
+			clearInterval(displayInterval);
+			iterations = 0;
+			seconds    = 0;
 		}
 		
 		if(newValue != 0)
 		{
 			refreshInterval = setInterval( tick, (1.0/newValue) * 1000 );
+			timerInterval   = setInterval(timer, 1000);
+			displayInterval = setInterval(display, 1/FRAMERATE * 1000);
 		}
 		
 
 	}
 	
+	function timer()
+	{
+		seconds++;
+		document.getElementById("generationsLabel").innerHTML = (iterations/seconds).toFixed(2) + " generations / sec";
+	}
+	
 	function tick()
 	{
+		iterations++;
+		
 		var cell;
 		var neighboringCells;
 		var neighborX;
@@ -76,10 +119,11 @@
 		var toBeRevived = [];
 		var toBeKilled  = [];
 		
+		//console.log(board);
+		
 		for(var y = 0; y < gameDim; y++)
 			for(var x = 0; x < gameDim; x++)
 			{
-				cell = getCellDiv(x, y);
 				neighboringCells = 0;
 				
 				//Iterate through neighbors
@@ -94,37 +138,82 @@
 							
 							//console.log("neighbor: " + neighborX + ", " + neighborY);
 							
-							if(!isDead(getCellDiv(neighborX, neighborY)))
+							if(board[neighborX][neighborY] == true)
 							{
-								console.log("Neighbors: " + cell.id + ", " + getCellDiv(neighborX, neighborY).id);
+								//console.log("Neighbors: " + cell.id + ", " + getCellDiv(neighborX, neighborY).id);
 								neighboringCells++;
 							}
 						}
 					}
 
-				if(isDead(cell))
+				if(board[x][y] == false)
 				{
 					if(neighboringCells == 3)
 					{
-						console.log("To be revived: " + cell.id);
-						toBeRevived.push(cell);
+						//console.log("To be revived: " + x + ", " + y);
+						toBeRevived.push(new Point(x,y));
 					}
 				}
 				else if(neighboringCells < 2 || neighboringCells > 3)
 				{
-					console.log("To be killed: " + cell.id);
-					toBeKilled.push(cell);
+					//console.log("To be killed: " + x + ", " + y);
+					toBeKilled.push(new Point(x, y));
 				}
 					
 			}
 			
-		toBeRevived.forEach( function(cell) { cell.className = "aliveGameCell" } );
-		toBeKilled.forEach ( function(cell) { cell.className = "deadGameCell"  } );
+		toBeRevived.forEach( function(cell)
+		{
+			board[cell.x][cell.y] = true;
+			
+			if(!(changes.has(cell)))	//Change ist noch nicht bekannt -> Hinzufügen
+			{
+				changes.set(cell, true);
+			}
+			else if(!changes[cell])		//Umgekehrter Change war bereits angeordnet -> Überflüssig, wieder raus
+			{
+				changes.delete(cell);
+			}
+		});
+		toBeKilled.forEach ( function(cell)
+		{
+			board[cell.x][cell.y] = false;
+			
+			if(!(changes.has(cell)))	//Change ist noch nicht bekannt -> Hinzufügen
+			{
+				changes.set(cell, false);
+			}
+			else if(changes[cell])		//Umgekehrter Change war bereits angeordnet -> Überflüssig, wieder raus
+			{
+				changes.delete(cell);
+			}
+		} );
 	}
 	
-	function isDead(gameCellDiv)
+	function display()
 	{
-		return gameCellDiv.className == "deadGameCell";
+		
+		var changesCopy = changes;
+		
+		if(changesCopy.size == 0)
+		{
+			return;
+		}
+		
+		var key;
+		changesCopy.forEach(function(value, key)
+		{
+			if(value)
+			{
+				getCellDiv(key.x, key.y).className = "aliveGameCell";
+			}
+			else
+			{
+				getCellDiv(key.x, key.y).className = "deadGameCell";
+			}
+		});
+		
+		changes.clear();
 	}
 	
 	function modulo(value)
@@ -155,13 +244,22 @@
 	{
 		if(getCellDiv(x, y).className == "aliveGameCell")
 		{
-			getCellDiv(x, y).className = "deadGameCell";			
+			getCellDiv(x, y).className = "deadGameCell";	
+			board[x][y] = false;
+			//console.log(board[x][y]);
 		}
 		else
 		{
 			getCellDiv(x, y).className = "aliveGameCell";
+			board[x][y] = true;
+			//console.log(board[x][y]);
 		}
 
+	}
+	
+	function Point(x, y) {
+	  this.x = x;
+	  this.y = y;
 	}
 </script>
 
@@ -174,7 +272,7 @@ class Content
 	private $userName   = '';
 	private $isStopped  = true;
 	
-	private $gameDim = 15; //Predefined for now
+	private $gameDim = 200; //Predefined for now
 	
 	public function __construct()
 	{
@@ -322,8 +420,8 @@ table td
 	padding: 0;
 	box-sizing: border-box;
 	display: inline-block;
-	width: 20px;
-	height: 20px;
+	width: 1px;
+	height: 1px;
 	//border: 0.1px solid white;
 	background-color: #DDD;
 }
@@ -333,8 +431,8 @@ table td
 	padding: 0;
 	box-sizing: border-box;
 	display: inline-block;
-	width: 20px;
-	height: 20px;
+	width: 1px;
+	height: 1px;
 	//border: 0.1px solid white;
 	background-color: #F00;
 }
