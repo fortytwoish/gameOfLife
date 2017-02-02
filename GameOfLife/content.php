@@ -27,6 +27,13 @@
 		return arr;
 	}
 	
+	//x_y presetDefinitions relative to middle & including 0,0
+	var presets = {
+		'Sauwastika'	: 	["-2:-3","-1:-3","0:-3","0:-2","0:-1","0:0","0:1","0:2","0:3","1:3","2:3","-1:0","-2:0","-3:0","-3:1","-3:2","1:0","2:0","3:0","3:-1","3:-2"],
+		'SquareTest'  	: 	["-3:-3","-2:-3","-1:-3","0:-3","1:-3","2:-3","3:-3","-3:-2","0:-2","3:-2","-3:-1","0:-1","3:-1","-3:0","0:0","3:0","-3:1","0:1","3:1","-3:2",
+						     "0:2","3:2","-3:3","-2:3","-1:3","0:3","1:3","2:3","3:3"]
+	};
+	
 	function randomBoard()
 	{
 		for(var y = 0; y < gameDim; y++)
@@ -48,16 +55,25 @@
 	}
 	
 	function generateBoard(_gameDim)
-	{		
-		
-		gameDim = _gameDim;
-		
+	{
+		gameDim = _gameDim;		
 		board = createArray(gameDim, gameDim);
-	
+
 		//Generate Slider
 		document.write("<input type=\"range\" min=\"0\" max=\"100\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label>");
 		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/> ");
 		document.write("<label id=\"generationsLabel\"></label>");
+		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/>");
+		
+		document.write('<label>Presets:    '+
+						'<select name="presets" id="presets" size="1">      '+
+						  '<option>Sauwastika</option> '+
+						  '<option>SquareTest</option>'+
+						  '<option>SquartTest1</option>'+
+						  '<option>SquartTest3</option>'+
+						  '<option>SquartTest2</option>'+
+						'</select>'+
+					  '</label>');
 	
 		//Generate table
 	
@@ -97,8 +113,6 @@
 			timerInterval   = setInterval(timer, 1000);
 			displayInterval = setInterval(display, 1/FRAMERATE * 1000);
 		}
-		
-
 	}
 	
 	function timer()
@@ -242,6 +256,7 @@
 	
 	function cellClick(x, y)
 	{
+		insertPreset('buddhistLuck');
 		if(getCellDiv(x, y).className == "aliveGameCell")
 		{
 			getCellDiv(x, y).className = "deadGameCell";	
@@ -260,7 +275,42 @@
 	function Point(x, y) {
 	  this.x = x;
 	  this.y = y;
+
 	}
+			
+	function insertPreset($presetName)
+	{
+		var presetValues = new Array(200);
+		var strUser = ""; 
+		var optionBox = document.getElementById("presets");
+		
+		if(optionBox != null)
+			strUser = optionBox.options[optionBox.selectedIndex].text;
+		
+		console.log(strUser);
+		
+		switch(strUser){
+				case 'Sauwastika':
+					presetValues =  presets['Sauwastika'];
+					break;
+				case 'SquareTest':	
+					presetValues =  presets['SquareTest'];
+					break;
+				default:
+					break;
+		}
+		
+		console.log(presetValues)
+		
+		presetValues.forEach(function(item)
+		{		
+			var tmp = item.split(':');
+			var middle = Math.floor(gameDim / 2);
+			console.log("x : "  +tmp[0] + " y: " +tmp[1]);
+			getCellDiv(middle+ parseInt(tmp[0]), middle+ parseInt(tmp[1])).className = "aliveGameCell";			
+		});
+	}
+	
 </script>
 
 <?php	
@@ -272,7 +322,7 @@ class Content
 	private $userName   = '';
 	private $isStopped  = true;
 	
-	private $gameDim = 200; //Predefined for now
+	private $gameDim = 101; //Predefined for now
 	
 	public function __construct()
 	{
@@ -300,11 +350,13 @@ class Content
 					</ul>
 				</nav>';
 	}
+
 	
 	public function showWelcome()
 	{
 		$this->showNavigation(-1);
 		echo '<h1>Welcome to Game Of Life</h1>';
+
 	}
 	
 	public function showLogin()
@@ -336,6 +388,8 @@ class Content
 			<script type="text/javascript">
 				generateBoard('.$this->gameDim.');
 			</script>';
+			
+		echo '<input type="submit" name="resetButton" value="Reset"/>';
 	}
 	
 	public function showMPGame($gameBtn)
@@ -350,9 +404,9 @@ class Content
 		}
 		else if($gameBtn == "Reset")
 		{
-			//$this->
+					
 		}
-				
+		
 		echo '<form action="welcome.php" method="POST">';
 			$this->showGameControls();
 
