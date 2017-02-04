@@ -2,6 +2,8 @@
 	
 	const FRAMERATE = 60;
 	
+	const CELLSIZE = 5;
+	
 	var refreshInterval;
 	var timerInterval;	
 	var displayInterval;
@@ -9,10 +11,13 @@
 	var gameDim;
 	
 	var iterations = 0;
+	var currIterations = 0;
 	var seconds = 0;
 	
 	var board;
 	var changes = new Map();
+
+	var ctx;
 	
 	//Can create multidimensional arrays
 	function createArray(length) {
@@ -36,22 +41,32 @@
 	
 	function randomBoard()
 	{
+		iterations = 0;
+		seconds = 0;
+	
 		for(var y = 0; y < gameDim; y++)
 		{
 			for(var x = 0; x < gameDim; x++)
 			{
 				if(Math.random() < 0.5)
 				{
-					getCellDiv(x,y).className = "deadGameCell";
+					ctx.fillStyle = "rgba(255,255,255,1)";
+					drawPixel(x, y);
 					board[x][y] = false;
 				}
 				else
 				{
-					getCellDiv(x,y).className = "aliveGameCell";
+					ctx.fillStyle = "rgba(255,0,0,1)";
+					drawPixel(x, y);
 					board[x][y] = true;
 				}
 			}
 		}
+	}
+
+	function drawPixel(x, y)
+	{
+		ctx.fillRect( x * CELLSIZE, y * CELLSIZE, CELLSIZE, CELLSIZE );
 	}
 	
 	function generateBoard(_gameDim)
@@ -60,10 +75,9 @@
 		board = createArray(gameDim, gameDim);
 
 		//Generate Slider
-		document.write("<input type=\"range\" min=\"0\" max=\"100\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label>");
-		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/> ");
-		document.write("<label id=\"generationsLabel\"></label>");
-		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/>");
+		document.write("<input type=\"range\" min=\"0\" max=\"1000\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label><br/>");
+		document.write("<label id=\"generationsLabel\">Generations per Second | </label><br/><br/><br/>");
+		document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/><br/><br/>");
 		
 		document.write('<label>Presets:    '+
 						'<select name="presets" id="presets" size="1">      '+
@@ -75,23 +89,12 @@
 						'</select>'+
 					  '</label>');
 	
-		//Generate table
-	
-		document.write("<table cellspacing=\"0\">");
+		//Generate canvas
 		
-		for(var i = 0; i < gameDim; i++)
-		{
-			document.write("<tr>");
-			for(var j = 0; j < gameDim; j++)
-			{
-				document.write("<td>");
-				document.write("	<div class=\"deadGameCell\" id=\"cell_"+j+"_"+i+"\" onclick=\"cellClick("+j+", "+i+")\"/>");
-				document.write("</td>");
-				board[j][i] = false;
-			}
-			document.write("</tr>");
-		}
-		document.write("</table>");
+		document.write("<br/><br/><canvas id=\"myCanvas\" width=\""+gameDim * CELLSIZE+"\" height=\""+gameDim * CELLSIZE+"\" moz-opaque></canvas>"); 
+
+		var c = document.getElementById("myCanvas");
+		ctx = c.getContext("2d");
 	}
 	
 	function speedChanged(newValue)
@@ -118,12 +121,14 @@
 	function timer()
 	{
 		seconds++;
-		document.getElementById("generationsLabel").innerHTML = (iterations/seconds).toFixed(2) + " generations / sec";
+		document.getElementById("generationsLabel").innerHTML = "Generations per Second | Last: " + currIterations + "\t Avg: " + (iterations/seconds).toFixed(2);
+		currIterations = 0;
 	}
 	
 	function tick()
 	{
 		iterations++;
+		currIterations++;
 		
 		var cell;
 		var neighboringCells;
@@ -204,27 +209,46 @@
 		} );
 	}
 	
+	var changesCopy;
+	
 	function display()
 	{
 		
-		var changesCopy = changes;
+		changesCopy = changes;
 		
 		if(changesCopy.size == 0)
 		{
 			return;
 		}
 		
-		var key;
+		//TODO: Group more efficiently than this
+		var toKill = [];
+		var toRevive = [];
+		
 		changesCopy.forEach(function(value, key)
 		{
 			if(value)
 			{
-				getCellDiv(key.x, key.y).className = "aliveGameCell";
+				toRevive.push(key);
+				
+				
 			}
 			else
 			{
-				getCellDiv(key.x, key.y).className = "deadGameCell";
+				toKill.push(key);
 			}
+		});
+		
+		ctx.fillStyle = "rgba(255,0,0,1)";
+		toRevive.forEach(function(key)
+		{
+			drawPixel(key.x, key.y);
+		});
+		
+		ctx.fillStyle = "rgba(255,255,255,1)";
+		toKill.forEach(function(key)
+		{
+			drawPixel(key.x, key.y);
 		});
 		
 		changes.clear();
@@ -300,140 +324,21 @@
 					break;
 		}
 		
-		console.log(presetValues)
+		//console.log(presetValues)
 		
+		//TODO
 		presetValues.forEach(function(item)
 		{		
 			var tmp = item.split(':');
 			var middle = Math.floor(gameDim / 2);
-			console.log("x : "  +tmp[0] + " y: " +tmp[1]);
+			//console.log("x: "  +tmp[0] + " y: " +tmp[1]);
 			getCellDiv(middle+ parseInt(tmp[0]), middle+ parseInt(tmp[1])).className = "aliveGameCell";			
 		});
 	}
 	
+	generateBoard(200);
+	
 </script>
-
-<?php	
-class Content
-{
-	private $db;
-	
-	private $isLoggedIn = false;
-	private $userName   = '';
-	private $isStopped  = true;
-	
-	private $gameDim = 101; //Predefined for now
-	
-	public function __construct()
-	{
-		include 'database.php';
-		$this->db = new database();
-	}
-	
-	public function showNavigation($selected)
-	{			
-		$loginText = $this->userName == null
-				   ? 'Login'
-				   : 'Profile of '.$this->userName;
-		
-		echo '	<nav>
-					<ul>
-						<li>
-							<a href="?do=showLogin" style="color:'.($selected == 0 ? "#000" : "#FFF").';">'.$loginText.'</a>
-						</li>
-						<li>
-							<a href="?do=showSPGame" style="color:'.($selected == 1 ? "#000" : "#FFF").';">Singleplayer</a>
-						</li>
-						<li>
-							<a href="?do=showMPGame" style="color:'.($selected == 2 ? "#000" : "#FFF").';">Multiplayer</a>
-						</li>
-					</ul>
-				</nav>';
-	}
-
-	
-	public function showWelcome()
-	{
-		$this->showNavigation(-1);
-		echo '<h1>Welcome to Game Of Life</h1>';
-
-	}
-	
-	public function showLogin()
-	{
-		$this->showNavigation(0);
-	}
-	
-	private function showGameControls()
-	{
-		if($this->isStopped)
-		{
-			echo '<input type="submit" name="gameBtn" value="Start"/>';
-		}
-		else
-		{
-			echo '<input type="submit" name="gameBtn" value="Pause"/>';
-		}
-		
-		echo ' <input type="submit" name="gameBtn" value="Reset"/>'; 
-		//TODO differenciate
-		//echo ' <input type="hidden" name="do" value="showGame"/>';
-	}
-	
-	public function showSPGame($gameBtn)
-	{
-		$this->showNavigation(1);
-		
-		echo '
-			<script type="text/javascript">
-				generateBoard('.$this->gameDim.');
-			</script>';
-			
-		echo '<input type="submit" name="resetButton" value="Reset"/>';
-	}
-	
-	public function showMPGame($gameBtn)
-	{
-		$this->showNavigation(2);
-		
-		if($gameBtn == "Start")
-		{
-			$this->isStopped = false;
-			
-			//
-		}
-		else if($gameBtn == "Reset")
-		{
-					
-		}
-		
-		echo '<form action="welcome.php" method="POST">';
-			$this->showGameControls();
-
-		
-		echo '<table cellspacing="0">';
-		
-		for($i = 0; $i < $this->gameDim; $i++)
-		{
-			echo '<tr>';
-			for($j = 0; $j < $this->gameDim; $j++)
-			{
-				echo '<td>
-						<div class="deadGameCell"/>
-					  </td>';
-			}
-			echo '</tr>';
-		}
-		
-		echo '</table>';
-		
-		echo '</form>';
-	}
-	
-
-}
-?>
-
 
 <style type="text/css">
 nav
@@ -464,9 +369,9 @@ p
 	margin-bottom: 10px;
 }
 
-table td
+label
 {
-	padding: 0;
+	border: 1px solid green;
 }
 
 .deadGameCell
@@ -474,8 +379,8 @@ table td
 	padding: 0;
 	box-sizing: border-box;
 	display: inline-block;
-	width: 1px;
-	height: 1px;
+	width: 5px;
+	height: 5px;
 	//border: 0.1px solid white;
 	background-color: #DDD;
 }
@@ -485,9 +390,15 @@ table td
 	padding: 0;
 	box-sizing: border-box;
 	display: inline-block;
-	width: 1px;
-	height: 1px;
+	width: 5px;
+	height: 5px;
 	//border: 0.1px solid white;
 	background-color: #F00;
 }
+
+canvas
+{
+	border: 1px solid black;
+}
+
 </style>
