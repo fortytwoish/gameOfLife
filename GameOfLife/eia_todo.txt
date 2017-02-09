@@ -1,0 +1,26 @@
+ToDo: 
+
+[*]	weitere diskrete Zustände?!
+=> Weitere Farben?! 
+==> Dadurch erhöhte Zellgröße ?
+==> Mit weiteren Regeln ausprobieren....
+
+[*]	Gamification ( in der Anweisung "Gameification" was auch immer das heißt)
+=> Zwei Modi (> FreePlay mit Presets) (> ScoreGame mit festg. AnfangsAnzahl von Zells) 
+=> Färbung des Hintergrunds => Erreichen eines gewissen zustands			=> Punkte
+=> Abhängig von der Anzahl der erschaffenen Zellen					=> Punkte
+=> Gewisse Pattern erkennen?! => (Glider 'n' stuff?)
+=> Punkte per Button eintauschbar in neusetzbare Zellen
+===> Progressiv steigender Preis für Zelle?! 
+=> Registrierung der User
+
+**DatenbankAnbindung:
+=> Auslesen des Arrays (nur zellen? rest entsprechend generieren!?)
+===> Zustand in Datenbank ablegen, sowie score, zum wiederaufnehmen des Games?!
+=> Abfragen:
+ 	zur Erstellung des Leaderboards!?
+	Account Authentifizierung
+
+Users (>AccID<PK> , AccName,   Login, Password)
+Games (>GameID<PK>, Field<[]>, Score, deadlock<bool>, AccID<FK>)
+[Highscore lookup_table? 	|| 	lookup_query] 
