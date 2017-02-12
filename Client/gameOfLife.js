@@ -80,9 +80,11 @@ function generateBoard(_gameDim)
 
     //Generate Slider
     var slideWidth = _gameDim * CELLSIZE;
-    document.write("<input type=\"range\" min=\"0\" max=\"250\" style=\"width:"+slideWidth+"px;\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label><br/>");
+    document.write( "<input type=\"range\" min=\"0\" max=\"250\" style=\"width:" + slideWidth + "px;\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label><br/>" );
+
     document.write("<label id=\"generationsLabel\">Generations per Second | </label><br/><br/><br/>");
-    document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/><br/><br/>");
+    document.write( "<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/><br/><br/>" );
+    document.write( "<input type=\"button\" value=\"dataTransfer\" onclick=\"fuckload2tmp()\"/><br/><br/>" );
 
     document.write('<label>Presets:    '+
                     '<select name="presets" id="presets" size="1">      '+

@@ -8,7 +8,7 @@
             if ( board[x][y] == false ) strRow += "0";
             else strRow += "1";
         }
-        sendArrayBuffer( "row" + y + " || " + strRow );
+        sendArrayBuffer( "row" + y + "=" + strRow );
         strRow = "";
     }
 }
@@ -27,14 +27,19 @@ function sendArrayBuffer( data )
 
     var http = new XMLHttpRequest();
     var postdata = data;
-    http.open( "POST", "https://p0wl.eu/upload.php", true );
+
+    http.open( "POST", "http://pbs2h15amu.webpb.pb.bib.de/GameOfLife/Server/Upload.php", true );
     //Send the proper header information along with the request
     http.setRequestHeader( "Content-type", "application/x-www-form-urlencoded" );
     //	http.setRequestHeader("Content-length", postdata.length);
-    /*http.onreadystatechange = function() {//Call a function when the state changes.
+
+    /*
+    http.onreadystatechange = function() {//Call a function when the state changes.
 	   if(http.readyState == 4 && http.status == 200) {
-	      alert(http.responseText);
+	      console.log(http.responseText);
 	   }
-	}*/
+	}
+	*/
+
     http.send( postdata );
 }
