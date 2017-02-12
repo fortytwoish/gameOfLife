@@ -19,8 +19,8 @@ class Content
 	{
        //Load CSS and JS files
        echo '<link rel="stylesheet" href="../Client/gameOfLife.css" type="text/css">';
-       echo '<script src="../Client/gameOfLife.js" ></script>';
-       echo '<script src="../Client/uploadGame.js" ></script>';
+       echo '<script src="../Client/gameOfLife.js"></script>';
+       echo '<script src="../Client/uploadGame.js"></script>';
 
 		$loginText = $this->userName == null
 				   ? 'Login'
@@ -29,18 +29,17 @@ class Content
 		echo '	<nav>
 					<ul>
 						<li>
-							<a href="?do=showLogin" style="color:'.($selected == 0 ? "#000" : "#FFF").';">'.$loginText.'</a>
+							<a href="?do=showLogin" class="'.($selected == 0 ? "selectedNavItem" : "deselectedNavItem").'">'.$loginText.'</a>
 						</li>
 						<li>
-							<a href="?do=showSPGame" style="color:'.($selected == 1 ? "#000" : "#FFF").';">Singleplayer</a>
+							<a href="?do=showSPGame" class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">Singleplayer</a>
 						</li>
 						<li>
-							<a href="?do=showMPGame" style="color:'.($selected == 2 ? "#000" : "#FFF").';">Multiplayer</a>
+							<a href="?do=showMPGame" class="'.($selected == 2 ? "selectedNavItem" : "deselectedNavItem").'">Multiplayer</a>
 						</li>
 					</ul>
 				</nav>';
 	}
-
 
 	public function showWelcome()
 	{

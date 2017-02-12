@@ -10,8 +10,7 @@
 			$content = new Content();
 		
 			$errors = array();
-			$values = array("do"      => "",
-							"gameBtn" => ""); //TODO: Fill with all possible form data
+			$values = array("do"      => "");
 		
 //===========================================================================================//
 		
@@ -45,10 +44,10 @@
 					$content->showLogin();
 					break;
 				case "showSPGame":
-					$content->showSPGame($values["gameBtn"]);
+					$content->showSPGame();
 					break;
 				case "showMPGame":
-					$content->showMPGame($values["gameBtn"]);
+					$content->showMPGame();
 					break;
 				default: 
 					$content->showWelcome();
@@ -62,7 +61,6 @@
 			{
 				if(isset($_POST[$key]))
 				{
-					//echo $key . ' ist gesetzt: ('. $_POST[$key] . ') (POST)<br>';
 					return filter_input(INPUT_POST, $key, FILTER_SANITIZE_STRING);
 				}
 				else
@@ -75,12 +73,10 @@
 			{
 				if(isset($_GET[$key]))
 				{
-					//echo $key . ' ist gesetzt (GET)<br>';
 					return filter_input(INPUT_GET, $key, FILTER_SANITIZE_STRING);
 				}
 				else
 				{
-					//echo $key . ' ist nicht gesetzt (GET)<br>';
 					return "";
 				}
 			}
