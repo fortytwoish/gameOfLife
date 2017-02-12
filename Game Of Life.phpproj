@@ -8,7 +8,7 @@
     </RootNamespace>
     <OutputType>Library</OutputType>
     <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
-    <SpecificPageValue>GameOfLife/welcome.php</SpecificPageValue>
+    <SpecificPageValue>Server/welcome.php</SpecificPageValue>
     <StartAction>SpecificPage</StartAction>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -18,13 +18,20 @@
     <IncludeDebugInformation>false</IncludeDebugInformation>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="GameOfLife\content.php" />
-    <Compile Include="GameOfLife\database.php" />
-    <Compile Include="GameOfLife\eia_todo.txt" />
-    <Compile Include="GameOfLife\welcome.php" />
+    <Compile Include="Server\content.php" />
+    <Compile Include="Server\database.php" />
+    <Compile Include="Server\eia_todo.txt" />
+    <Compile Include="Server\Upload.php" />
+    <Compile Include="Server\welcome.php" />
     <Compile Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="GameOfLife" />
+    <Folder Include="Client\" />
+    <Folder Include="Server\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Client\gameOfLife.css" />
+    <Content Include="Client\gameOfLife.js" />
+    <Content Include="Client\uploadGame.js" />
   </ItemGroup>
 </Project>
