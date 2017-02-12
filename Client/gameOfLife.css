@@ -22,6 +22,11 @@ nav ul
     text-decoration: none;
 }
 
+.loginError
+{
+    color:red;
+}
+
 nav li
 {
     display: inline;

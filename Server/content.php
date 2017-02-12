@@ -1,18 +1,20 @@
 <?php
+
+session_start();
+
 class Content
 {
 	private $db;
-
+    private $gameDim    = 100; //Predefined for now //Should be odd always to guarantee middle
 	private $isLoggedIn = false;
-	private $userName   = '';
-	private $isStopped  = true;
 
-	private $gameDim = 100; //Predefined for now //Should be odd always to guarantee middle
+    public $userName = "";
 
 	public function __construct()
 	{
 		include 'database.php';
-		$this->db = new database();
+		$this->db = new dataBase();
+        $this->userName = $_SESSION["username"];
 	}
 
 	public function showNavigation($selected)
@@ -29,13 +31,13 @@ class Content
 		echo '	<nav>
 					<ul>
 						<li>
-							<a href="?do=showLogin" class="'.($selected == 0 ? "selectedNavItem" : "deselectedNavItem").'">'.$loginText.'</a>
+							<a href="?do=showAccount"     class="'.($selected == 0 ? "selectedNavItem" : "deselectedNavItem").'">'.$loginText.'</a>
 						</li>
 						<li>
-							<a href="?do=showSPGame" class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">Singleplayer</a>
+							<a href="?do=showGame"        class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">Play</a>
 						</li>
 						<li>
-							<a href="?do=showMPGame" class="'.($selected == 2 ? "selectedNavItem" : "deselectedNavItem").'">Multiplayer</a>
+							<a href="?do=showLeaderboard" class="'.($selected == 2 ? "selectedNavItem" : "deselectedNavItem").'">Leaderboard</a>
 						</li>
 					</ul>
 				</nav>';
@@ -45,79 +47,95 @@ class Content
 	{
 		$this->showNavigation(-1);
 		echo '<h1>Welcome to Game Of Life</h1>';
+        echo 'Created by <b>Paul Scheel</b> and <b>Marvin M&uuml;ller</b> in 2017';
 	}
 
-	public function showLogin()
+	public function showLogin($values, $errors)
 	{
 		$this->showNavigation(0);
+
+        $username = $values["username"];
+        $password = $values["password"];
+
+        $usernameErr = $errors["username"];
+        $passwordErr = $errors["password"];
+
+        echo '<form action="welcome.php" method="POST">
+                <table>
+                    <tr>
+                        <td><b>Username</b></td>
+                        <td><input type="text" name="username" value="'.$username.'"/> <span class="loginError">'.$usernameErr.'</span></td>
+                    </tr>
+                    <tr>
+                        <td><b>Password</b></td>
+                        <td><input type="text" name="password" value="'.$password.'"/> <span class="loginError">'.$passwordErr.'</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="submit" name="accountAction" value="Login"/></td>
+                        <td><input type="submit" name="accountAction" value="Create"/></td>
+                    </tr>
+                </table>
+                <input type="hidden" name="do" value="accountAction"/>
+              </form>';
 	}
 
-	private function showGameControls()
-	{
-		if($this->isStopped)
-		{
-			echo '<input type="submit" name="gameBtn" value="Start"/>';
-		}
-		else
-		{
-			echo '<input type="submit" name="gameBtn" value="Pause"/>';
-		}
+    public function showAccount()
+    {
+        $this->showNavigation(0);
 
-		echo ' <input type="submit" name="gameBtn" value="Reset"/>';
-		//TODO differenciate
-		//echo ' <input type="hidden" name="do" value="showGame"/>';
-	}
+        echo '<form action="welcome.php" method="POST">
+                <p>showing account of user: '.$this->userName.'</p>
+                <input type="submit" name="do" value="Logout"/>
+              </form>';
+    }
 
-	public function showSPGame($gameBtn)
+    private function setUser($username)
+    {
+        $this->userName = $username;
+        $_SESSION["username"] = $username;
+        $_SESSION["token"] = rand();
+    }
+
+    public function login($username, $password)
+    {
+        //TODO: Database
+
+        $this->setUser($username);
+
+        $this->showAccount();
+    }
+
+    public function create($username, $password)
+    {
+        echo 'create: '.$username.', '.$password;
+
+        $this->db->addUser($username, $password);
+
+        $this->setUser($username);
+
+        $this->showAccount();
+    }
+
+    public function logout()
+    {
+        $this->setUser("");
+
+        $this->showWelcome();
+    }
+
+	public function showGame()
 	{
 		$this->showNavigation(1);
 
-		echo '
-			<script type="text/javascript">
-				generateBoard('.$this->gameDim.');
-			</script>';
-
-		echo '<input type="submit" name="resetButton" value="Reset"/>';
+		echo '<script type="text/javascript">
+		        generateBoard('.$this->gameDim.');
+			  </script>';
 	}
 
-	public function showMPGame($gameBtn)
-	{
-		$this->showNavigation(2);
-
-		if($gameBtn == "Start")
-		{
-			$this->isStopped = false;
-
-			//
-		}
-		else if($gameBtn == "Reset")
-		{
-
-		}
-
-		echo '<form action="welcome.php" method="POST">';
-			$this->showGameControls();
-
-
-		echo '<table cellspacing="0">';
-
-		for($i = 0; $i < $this->gameDim; $i++)
-		{
-			echo '<tr>';
-			for($j = 0; $j < $this->gameDim; $j++)
-			{
-				echo '<td>
-						<div class="deadGameCell"/>
-					  </td>';
-			}
-			echo '</tr>';
-		}
-
-		echo '</table>';
-
-		echo '</form>';
-	}
-
+    public function showLeaderboard()
+    {
+        $this->showNavigation(2);
+    }
 
 }
 ?>

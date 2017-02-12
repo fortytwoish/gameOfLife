@@ -3,31 +3,31 @@
         <TITLE>Projekt: GameOfLife</TITLE>
     </HEAD>
     <BODY>
-		<a href="../index.php">Zurück zu pbs2h15amu Home</a><br><br>
-		<?php	
-		
+        <?php
+
 			include 'content.php';
 			$content = new Content();
-		
+
 			$errors = array();
-			$values = array("do"      => "");
-		
+			$values = array("do" => "",
+                            "username" => "",
+                            "password" => "",
+                            "accountAction" => "");
+
 //===========================================================================================//
-		
-			if($_SERVER["REQUEST_METHOD"] == "POST") 
+
+			if($_SERVER["REQUEST_METHOD"] == "POST")
 			{
-				$do = _POST_SANITIZED("do");	
-				
+				$do = _POST_SANITIZED("do");
+
 				foreach($values as $key => $value)
 				{
 					if(_POST_SANITIZED($key) != "")
 					{
 						$values[$key] = _POST_SANITIZED($key);
-						echo $key.': '.$values[$key].' <br>';
 					}
-					else	
+					else
 					{
-						echo $key.' fehlt.<br>';
 						$errors = array_merge($errors, array($key => $key . " fehlt"));
 					}
 				}
@@ -35,28 +35,76 @@
 			else
 			{
 				$do = _GET_SANITIZED("do");
-				echo '$do: '.$do;
 			}
-			
+
 			switch($do)
 			{
-				case "showLogin":
-					$content->showLogin();
+				case "showAccount":
+                    if($content->userName == "")
+                    {
+                        $content->showLogin([], []);
+                    }
+                    else
+                    {
+                        $content->showAccount();
+                    }
 					break;
-				case "showSPGame":
-					$content->showSPGame();
+				case "showGame":
+					$content->showGame();
 					break;
-				case "showMPGame":
-					$content->showMPGame();
+				case "showLeaderboard":
+					$content->showLeaderboard();
 					break;
-				default: 
+                case "accountAction":
+                    {
+                        if($values["username"] != "" && strlen($values["username"]) < 6)
+                        {
+                            $errors["username"] = "Bitte einen Benutzernamen mit mindestens 6 Zeichen angeben.";
+                        }
+
+                        if($values["password"] != "" && strlen($values["password"]) < 6)
+                        {
+                            $errors["password"] = "Bitte ein Passwort mit mindestens 6 Zeichen angeben.";
+                        }
+
+                        if(    $errors["username"] != ""
+                            || $errors["password"] != ""
+                            || $errors["accountAction"] != "")
+                        {
+                            $content->showLogin($values, $errors);
+                        }
+                        else
+                        {
+                            if($values["accountAction"] == "Login")
+                            {
+                                $content->login($values["username"], $values["password"]);
+                            }
+                            else if($values["accountAction"] == "Create")
+                            {
+                                $content->create($values["username"], $values["password"]);
+                            }
+                            else
+                            {
+                                //Should never get here!
+                                echo "CATASTROPHIC FAILURE. TOTALLY UNEXPECTED LOGIN DATA.";
+                                return;
+                            }
+                        }
+                        break;
+                    }
+                case "Logout":
+                    {
+                        $content->logout();
+                    }
+                    break;
+				default:
 					$content->showWelcome();
 					break;
-				
+
 			}
-			
+
 //===========================================================================================//
-			
+
 			function _POST_SANITIZED($key)
 			{
 				if(isset($_POST[$key]))
@@ -68,7 +116,7 @@
 					return "";
 				}
 			}
-			
+
 			function _GET_SANITIZED($key)
 			{
 				if(isset($_GET[$key]))
@@ -80,6 +128,6 @@
 					return "";
 				}
 			}
-		?>
+        ?>
     </BODY>
 </HTML>

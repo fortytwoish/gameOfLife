@@ -84,6 +84,7 @@ function generateBoard(_gameDim)
 
     document.write("<label id=\"generationsLabel\">Generations per Second | </label><br/><br/><br/>");
     document.write( "<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/><br/><br/>" );
+    document.write('<input type="submit" name="resetButton" value="Reset"/><br/><br/>');
     document.write( "<input type=\"button\" value=\"dataTransfer\" onclick=\"fuckload2tmp()\"/><br/><br/>" );
 
     document.write('<label>Presets:    '+
