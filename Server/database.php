@@ -8,10 +8,10 @@
 class dataBase
 {
     //Einstellungen für XAMPP
-    private $dbName = "pbs2h15amu_gol";
+    private $dbName   = "pbs2h15amu_gol";
     private $linkName = "mysqlpb.pb.bib.de";
-    private $user = "pbs2h15amu";
-    private $pw = "hZtNe7Pe";
+    private $user     = "pbs2h15amu";
+    private $pw       = "hZtNe7Pe";
 
     public function __construct()
     {

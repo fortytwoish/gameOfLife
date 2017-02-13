@@ -42,7 +42,7 @@
 				case "showAccount":
                     if($content->userName == "")
                     {
-                        $content->showLogin([], []);
+                        $content->showLogin($values, array("username" => "", "password" => ""));
                     }
                     else
                     {
@@ -67,9 +67,9 @@
                             $errors["password"] = "Bitte ein Passwort mit mindestens 6 Zeichen angeben.";
                         }
 
-                        if(    $errors["username"] != ""
-                            || $errors["password"] != ""
-                            || $errors["accountAction"] != "")
+                        if(    isset($errors["username"])
+                            || isset($errors["password"])
+                            || isset($errors["accountAction"]))
                         {
                             $content->showLogin($values, $errors);
                         }

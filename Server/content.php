@@ -68,7 +68,7 @@ class Content
                     </tr>
                     <tr>
                         <td><b>Password</b></td>
-                        <td><input type="text" name="password" value="'.$password.'"/> <span class="loginError">'.$passwordErr.'</span></td>
+                        <td><input type="password" name="password" value="'.$password.'"/> <span class="loginError">'.$passwordErr.'</span></td>
                     </tr>
                     <tr>
                         <td><input type="submit" name="accountAction" value="Login"/></td>
@@ -84,8 +84,8 @@ class Content
         $this->showNavigation(0);
 
         echo '<form action="welcome.php" method="POST">
+                <input type="submit" name="do" value="Logout" />
                 <p>showing account of user: '.$this->userName.'</p>
-                <input type="submit" name="do" value="Logout"/>
               </form>';
     }
 
