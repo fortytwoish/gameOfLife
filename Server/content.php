@@ -13,7 +13,7 @@ class Content
 	public function __construct()
 	{
 		include 'database.php';
-		$this->db = new dataBase();
+		$this->db = new dataBase($this);
         $this->userName = $_SESSION["username"];
 	}
 
@@ -99,17 +99,23 @@ class Content
     public function login($username, $password)
     {
         //TODO: Database
+        if($this->db->loginUser($username,$password))
+        {
+            $this->setUser($username);
 
-        $this->setUser($username);
-
-        $this->showAccount();
+            $this->showAccount();
+        }
+        else
+            echo "<h2>Not logged in T_T</h2>";
     }
 
     public function create($username, $password)
     {
-        echo 'create: '.$username.', '.$password;
+        echo $username.' your account has been created';
+        
+        $this->db->createUser($username, $password);
 
-        $this->db->addUser($username, $password);
+        echo ' creation done';
 
         $this->setUser($username);
 
