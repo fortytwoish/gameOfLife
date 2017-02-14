@@ -1,26 +1,149 @@
-﻿//TODO: EIN Loop! Wenn 1/FPS sec vorbei, render zusätzlich anstoßen
-const FRAMERATE = 60;
+﻿const FRAMERATE     = 60;
+const CELLSIZE      = 2;
+const FRAMERATE_MS  = 1000 / FRAMERATE;
+const SLIDER_MAX    = 250;
+var desiredSpeed    = 0;
+var desiredSpeed_ms = 0;
+var sliderWidth     = 0;
 
-const CELLSIZE = 10;
-
-var refreshInterval;
-var timerInterval;
-var displayInterval;
-
+//Board variables
 var gameDim;
-
-var iterations 	   = 0;
-var currIterations = 0;
-var seconds 	   = 0;
-
 var board;
-var changes = new Map();
+var changes     = new Map();
 var changesTick = new Map();
+var isRunning   = false;
 
-var onFillStyle  = "rgba(255,0,0,0.01)";
-var offFillStyle = "rgba(10,10,10,0.01)";
+//Performance measurement variables
+var iterations 	          = 0;
+var currIterations        = 0;
+var displayIterations     = 0;
+var currDisplayIterations = 0;
+var seconds 	          = 0;
+var timerInterval;
 
+//Canvas style variables
+var onFillStyle  = "rgba(255,0,50,1.0)";
+var offFillStyle = "rgba(40,40,40,1.0)";
 var ctx;
+
+//====================================================================================================
+//      Initialization
+//====================================================================================================
+
+function generateBoard(_gameDim)
+{
+    gameDim = _gameDim;
+    board   = createArray(gameDim, gameDim);
+
+    //Generate Slider
+    sliderWidth = _gameDim * CELLSIZE;
+    document.write(`<input type="range" min="0" max="${SLIDER_MAX}" style="width:${sliderWidth}px;" value="0" onchange="speedChanged(this.value)" oninput="speedChanging(this.value)"><br/><label id="speed">0</label><br/>`);
+
+    document.write("<label id=\"generationsLabel\">Generations per Second | </label><br/>");
+    document.write("<label id=\"displaysLabel\">Displays per Second | </label><br/><br/><br/>");
+    document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/><br/><br/>");
+    document.write('<input type="submit" name="resetButton" value="Reset"/><br/><br/>');
+    document.write("<input type=\"button\" value=\"dataTransfer\" onclick=\"fuckload2tmp()\"/><br/><br/>");
+
+    document.write('<label>Presets:    ' +
+                    '<select name="presets" id="presets" size="1">      ' +
+                      '<option>Sauwastika</option> ' +
+                      '<option>SquareTest</option>' +
+                      '<option>SquartTest1</option>' +
+                      '<option>SquartTest3</option>' +
+                      '<option>SquartTest2</option>' +
+                    '</select>' +
+                  '</label>');
+
+    //Generate canvas
+    document.write("<br/><br/><canvas id=\"myCanvas\" width=\"" + gameDim * CELLSIZE + "\" height=\"" + gameDim * CELLSIZE + "\" moz-opaque></canvas>");
+
+    var c = document.getElementById("myCanvas");
+    ctx = c.getContext("2d");
+
+    c.addEventListener('mousedown', function (evt)
+    {
+        var mousePos = getMousePos(c, evt);
+
+        if (board[mousePos.x][mousePos.y])
+        {
+            board[mousePos.x][mousePos.y] = false;
+            ctx.fillStyle = offFillStyle;
+            drawPixel(mousePos.x, mousePos.y);
+        }
+        else
+        {
+            board[mousePos.x][mousePos.y] = true;
+            ctx.fillStyle = onFillStyle;
+            drawPixel(mousePos.x, mousePos.y);
+        }
+    }, false);
+
+
+    ctx.fillStyle = offFillStyle;
+    for (var j = 0; j < board.length; j++)
+        for (var i = 0; i < board.length; i++)
+        {
+            board[i][j] = false;
+            drawPixel(i, j);
+        }
+
+
+}
+
+//====================================================================================================
+//      Main Loop
+//====================================================================================================
+
+var lastDisplayTime;
+var lastTickTime;
+var nextTickTime;
+
+function startLoop()
+{
+    lastDisplayTime = Date.now();
+    lastTickTime    = Date.now();
+
+    loop();
+}
+
+function loop()
+{
+    if (desiredSpeed == 0)
+    {
+        return;
+    }
+
+    if(Date.now() - lastTickTime < desiredSpeed_ms) //If the loop is running too fast, slow it down
+    {
+        nextTickTime = lastTickTime + desiredSpeed_ms;
+        lastTickTime = nextTickTime;
+        setTimeout(tickAndDisplay, (nextTickTime - Date.now())); //Sleep until next tick can be done
+    }
+    else
+    {
+        tickAndDisplay();
+    }
+
+}
+
+function tickAndDisplay()
+{
+    tick();
+
+    if (Date.now() - lastDisplayTime >= FRAMERATE_MS)
+    {
+        display();
+        lastDisplayTime = Date.now();
+        setTimeout(loop);    //Give the display thread time to react
+    }
+    else
+    {
+        loop();
+    }
+}
+
+//====================================================================================================
 
 //Can create multidimensional arrays
 function createArray(length) {
@@ -53,7 +176,7 @@ function randomBoard()
         {
             if(Math.random() < 0.5)
             {
-                ctx.fillStyle = "rgba(255,255,255,1)";
+                ctx.fillStyle = offFillStyle;
                 drawPixel(x, y);
                 board[x][y] = false;
             }
@@ -72,70 +195,10 @@ function drawPixel(x, y)
     ctx.fillRect( x * CELLSIZE, y * CELLSIZE, CELLSIZE, CELLSIZE );
 }
 
-function generateBoard(_gameDim)
+function getMousePos(canvas, evt)
 {
-    gameDim = _gameDim;
-    board = createArray(gameDim, gameDim);
-
-
-    //Generate Slider
-    var slideWidth = _gameDim * CELLSIZE;
-    document.write( "<input type=\"range\" min=\"0\" max=\"250\" style=\"width:" + slideWidth + "px;\" value=\"0\" onchange=\"speedChanged(this.value)\"> <label id=\"speed\" style=\"vertical-align: top;\">0</label><br/>" );
-
-    document.write("<label id=\"generationsLabel\">Generations per Second | </label><br/><br/><br/>");
-    document.write( "<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/><br/><br/>" );
-    document.write('<input type="submit" name="resetButton" value="Reset"/><br/><br/>');
-    document.write( "<input type=\"button\" value=\"dataTransfer\" onclick=\"fuckload2tmp()\"/><br/><br/>" );
-
-    document.write('<label>Presets:    '+
-                    '<select name="presets" id="presets" size="1">      '+
-                      '<option>Sauwastika</option> '+
-                      '<option>SquareTest</option>'+
-                      '<option>SquartTest1</option>'+
-                      '<option>SquartTest3</option>'+
-                      '<option>SquartTest2</option>'+
-                    '</select>'+
-                  '</label>');
-
-    //Generate canvas
-
-    document.write("<br/><br/><canvas id=\"myCanvas\" width=\""+gameDim * CELLSIZE+"\" height=\""+gameDim * CELLSIZE+"\" moz-opaque></canvas>");
-
-    var c = document.getElementById("myCanvas");
-    ctx = c.getContext("2d");
-
-    c.addEventListener('mousedown', function(evt) {
-        var mousePos = getMousePos(c, evt);
-
-        if(board[mousePos.x][mousePos.y])
-        {
-            board[mousePos.x][mousePos.y] = false;
-            ctx.fillStyle = offFillStyle;
-            drawPixel(mousePos.x, mousePos.y);
-        }
-        else
-        {
-            board[mousePos.x][mousePos.y] = true;
-            ctx.fillStyle = onFillStyle;
-            drawPixel(mousePos.x, mousePos.y);
-        }
-    }, false);
-
-
-    ctx.fillStyle = offFillStyle;
-    for(var j = 0; j < board.length; j++)
-        for(var i = 0; i < board.length; i++)
-        {
-            board[i][j] = false;
-            drawPixel(i, j);
-        }
-
-
-}
-
-function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
-    return {
+    return{
         x: Math.floor((evt.clientX - rect.left) / CELLSIZE),
         y: Math.floor((evt.clientY - rect.top) / CELLSIZE)
     };
@@ -143,31 +206,48 @@ function getMousePos(canvas, evt) {
 
 var stopped = true;
 
+function speedChanging(newValue)
+{
+    document.getElementById("speed").innerHTML = `${newValue}/${SLIDER_MAX}`;
+    document.getElementById("speed").style = `color: #AAA; margin-left:${(newValue / SLIDER_MAX) * sliderWidth}px;`;
+}
+
 function speedChanged(newValue)
 {
-    document.getElementById("speed").innerHTML = newValue;
+    document.getElementById("speed").innerHTML = `${newValue}/${SLIDER_MAX}`;
+    document.getElementById("speed").style = `color: black; margin-left:${(newValue / SLIDER_MAX) * sliderWidth}px;`;
 
-    if(refreshInterval != null)
+    //TODO
+
+    if (timerInterval != null)
     {
-        clearInterval(refreshInterval);
         clearInterval(timerInterval);
-        clearInterval(displayInterval);
         iterations = 0;
         seconds    = 0;
     }
 
-    if(newValue != 0)
+    if(!isRunning)
     {
-        //refreshInterval = setInterval( tick, (1.0/newValue) * 1000 );
-        timerInterval   = setInterval(timer, 1000);
-        //displayInterval = setInterval(display, 1/FRAMERATE * 1000);
-        stopped = false;
-        tick();
+        timerInterval = setInterval(timer, 1000);
+
+        if (desiredSpeed == 0)
+        {
+            desiredSpeed = newValue;
+            desiredSpeed_ms = 1000 / desiredSpeed;
+            startLoop();
+        }
+        
     }
     else
     {
-        stopped = true;
+
     }
+    
+    //Reset everything
+    desiredSpeed    = newValue;
+    desiredSpeed_ms = 1000 / desiredSpeed;
+    lastDisplayTime = Date.now();
+    lastTickTime    = Date.now();
 
 }
 
@@ -184,8 +264,10 @@ function setOffFillStyle()
 function timer()
 {
     seconds++;
-    document.getElementById("generationsLabel").innerHTML = "Generations per Second | Last: " + currIterations + "\t Avg: " + (iterations/seconds).toFixed(2);
+    document.getElementById("generationsLabel").innerHTML = "GPS : Last Second: " + currIterations + "\t Avg: " + (iterations / seconds).toFixed(2);
+    document.getElementById("displaysLabel").innerHTML = "FPS : Last Second: " + currDisplayIterations + "\t Avg: " + (displayIterations / seconds).toFixed(2);
     currIterations = 0;
+    currDisplayIterations = 0;
 }
 
 function tick()
@@ -256,35 +338,11 @@ function tick()
         }
 
 
-    setTickResults(toBeRevived, toBeKilled);
-    /*
-    var boardStr = "";
-    for(var j = 0; j < board.length; j++)
-    {
-        for(var i = 0; i < board.length; i++)
-        {
-            if(board[i][j]) boardStr += "1";
-            else boardStr += "0";
-        }
-        boardStr += "\n";
-    }
-
-    console.log(boardStr);
-    */
-
-    if(!stopped)
-        setTimeout(tick, 10);
-}
-
-//Needs to run synchronously with getChangesToDisplay()
-function setTickResults(toBeRevived, toBeKilled)
-{
     //changesTick = new Map(changes);
 
     setOnFillStyle();
 
-    toBeRevived.forEach( function(cell)
-    {
+    toBeRevived.forEach(function (cell) {
         board[cell.x][cell.y] = true;
 
         drawPixel(cell.x, cell.y);
@@ -303,8 +361,7 @@ function setTickResults(toBeRevived, toBeKilled)
 
     setOffFillStyle();
 
-    toBeKilled.forEach ( function(cell)
-    {
+    toBeKilled.forEach(function (cell) {
         board[cell.x][cell.y] = false;
 
         drawPixel(cell.x, cell.y);
@@ -318,28 +375,32 @@ function setTickResults(toBeRevived, toBeKilled)
             changesTick.delete(cell);
         }
         */
-    } );
+    });
 
     //
     //changes = changesTick;
-}
 
-//Needs to run synchronously with setTickResults
-function getChangesToDisplay()
-{
-    var changesCopy = changes;
 
-    changes.clear();
+    /*
+    var boardStr = "";
+    for(var j = 0; j < board.length; j++)
+    {
+        for(var i = 0; i < board.length; i++)
+        {
+            if(board[i][j]) boardStr += "1";
+            else boardStr += "0";
+        }
+        boardStr += "\n";
+    }
 
-    return changesCopy;
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    console.log(boardStr);
+    */
 }
 
 function display()
 {
+    displayIterations++;
+    currDisplayIterations++;
     /*
     for(var j = 0; j < board.length; j++)
         for(var i = 0; i < board.length; i++)
@@ -351,8 +412,9 @@ function display()
         }
     */
 
-    var changesCopy = getChangesToDisplay();
+    var changesCopy = changes;
 
+    changes.clear();
 
     if(changesCopy.size == 0)
     {
@@ -410,12 +472,6 @@ function modulo(value)
     }
 }
 
-function getCellDiv(x, y)
-{
-    //console.log("getCell " + x + ", " + y);
-    return document.getElementById("cell_"+x+"_"+y);
-}
-
 function cellClick(x, y)
 {
     insertPreset('buddhistLuck');
@@ -449,7 +505,7 @@ function insertPreset($presetName)
     if(optionBox != null)
         strUser = optionBox.options[optionBox.selectedIndex].text;
 
-    console.log(strUser);
+    //console.log(strUser);
 
     switch(strUser){
         case 'Sauwastika':
@@ -473,5 +529,3 @@ function insertPreset($presetName)
         getCellDiv(middle+ parseInt(tmp[0]), middle+ parseInt(tmp[1])).className = "aliveGameCell";
     });
 }
-
-//generateBoard(100);

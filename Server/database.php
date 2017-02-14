@@ -3,23 +3,20 @@
 /**
  * Description of db
  *
- * @author Mavin Müller & Paul Scheel
- * (c) Benjamin Reichelt
+ * @author Benjamin Reichelt
  */
 class dataBase
 {
-    private $Content;
-
     //Einstellungen für XAMPP
     private $dbName   = "pbs2h15amu_gol";
     private $linkName = "mysqlpb.pb.bib.de";
     private $user     = "pbs2h15amu";
     private $pw       = "hZtNe7Pe";
 
-    public function __construct($_content)
+    public function __construct()
     {
-        $this->Content = $_content;
-    }   
+
+    }
 
     public function selectFromDB($sql)
     {
@@ -68,84 +65,44 @@ class dataBase
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
-    // WORKING
-    public function createUser($name, $pw)
+    public function addUser($userName, $userPw)
     {
-        $db = $this->linkDB();
-        $uid = $this->createGUID();
-        $score = 0;
-        $options = ['cost' => 11];
-        $salt = uniqid(mt_rand(), true);
+        echo "test";
+        $guid = $this->createGUID();
 
-        $hash = password_hash($pw.$salt, PASSWORD_BCRYPT, $options);
-        
-        if($stmt = $db->prepare("INSERT INTO user VALUES (?,?,?,?,?)")){
-        
-            $stmt->bind_param("sssis",$uid, $name, $hash, $score, $salt);
-            $stmt->execute();
-        }        
-        else
-        {
-            var_dump($db->error);
-        }
+        $salt = rand(); /* todo: make this fit into bigint(64) uniqid(mt_rand(), true); */
+
+        $sql = "INSERT INTO user (uid, name, password, salt, score) VALUES (\"{$guid}\",\"{$userName}\",\"{$userPw}\",\"{$salt}\",\"0\")";
+
+        echo "<script>alert(\"{$this->insertIntoDB($sql)}\");</script>";
     }
 
-    // WORKING
-    public function loginUser($name, $pw){
-
-        $db = $this->linkDB();
-        $resultFeedback = false;
-
-        if ($stmt = $db->prepare("SELECT pw, salt FROM user WHERE name=?"))
-        {
-            $stmt->bind_param("s",$name);
-
-            $queryFeedback = $stmt->execute();
-            $resultFeedback = false;
-            $stmt->store_result();
-
-            if($stmt->num_rows == 1)
-            {
-                $options = ['cost' => 11];
-
-                $stmt->bind_result($pwFromDb,$salt);
-                $stmt->fetch();
-                
-                if (password_verify($pw . $salt, $pwFromDb)) 
-                {
-                    $resultFeedback = true;
-                }
-            }
-            $stmt->free_result();
-        }
-        else { var_dump($db->error); }
-
-        return $resultFeedback;
-    }
-
-    public function addUserBoard($board, $name, $sid)
+    public function addUserBoard($boardArr)
     {
         $guid = $this->createGUID();
+
         $sql = "INSERT INTO board (bid, boardstate, name, sid, uid) VALUES";
-        $sql .= "(\"{$guid}\",\"{$board}\",\"{$name}\",\"{$sid}\",\"{$uid}\")";
+        //$sql .= "('".$guid."','".$boardArr['board']."','".$boardArr['name']."','".$boardArr['sid']."','".$boardArr['uid']"'')";
+
+        echo $sql;
     }
 
-    public function setUserProgress($uid)
+    public function setUserProgress($userProgress)
     {
-        $uid = $userProgress['uid'];
+        $guid = $userProgress['uid'];
 
-        $sqlRequest =  "UPDATE user SET score=\"{$points}\"" ;
-        $sqlRequest .= "WHERE uid=\"{$uid}\"";
+        $sqlRequest = "UPDATE user SET score=".$userProgress['points']." WHERE uid='".$userProgress['uid']."'";
 
         return $sqlResult;
     }
 
-    //WORKING
-    public function getCurrentUserID()
+    public function getUserGUID($userName)
     {
-        $sqlRequest = "SELECT uid FROM user WHERE name=\"{$Content->userName}\"";
+        $sqlRequest = "SELECT guid FROM user WHERE name='".$userName."'";
 
-        $return = $this->selectFromDB($sqlRequest);
+        $sqlResult = $this->selectFromDB($sqlRequest);
+
+        return $sqlResult;
     }
 
     public function getSidByDimension($dimension)

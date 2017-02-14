@@ -5,7 +5,7 @@ session_start();
 class Content
 {
 	private $db;
-    private $gameDim    = 100; //Predefined for now //Should be odd always to guarantee middle
+    private $gameDim    = 500; //Predefined for now //Should be odd always to guarantee middle
 	private $isLoggedIn = false;
 
     public $userName = "";
@@ -14,7 +14,10 @@ class Content
 	{
 		include 'database.php';
 		$this->db = new dataBase($this);
-        $this->userName = $_SESSION["username"];
+    if(isset($_SESSION["username"]))
+    {
+      $this->userName = $_SESSION["username"];
+    }
 	}
 
 	public function showNavigation($selected)
