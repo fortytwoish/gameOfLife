@@ -1,0 +1,73 @@
+﻿nav
+{
+    background-color: #AAA;
+}
+
+nav ul
+{
+    padding: 0;
+}
+
+.selectedNavItem
+{
+    color: #000;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.deselectedNavItem
+{
+    color: #FFF;
+    text-decoration: none;
+    text-decoration: none;
+}
+
+.loginError
+{
+    color:red;
+}
+
+nav li
+{
+    display: inline;
+    font-size: 20pt;
+    border-right: solid #FFF;
+    padding: 5px;
+}
+
+nav li a
+{
+    text-decoration: none;
+}
+
+p
+{
+    margin-bottom: 10px;
+}
+
+.deadGameCell
+{
+    padding: 0;
+    box-sizing: border-box;
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    //border: 0.1px solid white;
+    background-color: #DDD;
+}
+
+.aliveGameCell
+{
+    padding: 0;
+    box-sizing: border-box;
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    //border: 0.1px solid white;
+    background-color: #F00;
+}
+
+canvas
+{
+    border: 1px solid black;
+}
