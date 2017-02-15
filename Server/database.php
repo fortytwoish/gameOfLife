@@ -75,56 +75,122 @@ class dataBase
         }
     }
     // WORKING
-    public function loginUser($name, $pw){
+    public function loginUser($name, $pw)
+    {
         $db = $this->linkDB();
         $resultFeedback = false;
         if ($stmt = $db->prepare("SELECT pw, salt FROM user WHERE name=?"))
         {
             $stmt->bind_param("s",$name);
-            $queryFeedback = $stmt->execute();
-            $resultFeedback = false;
+            $stmt->execute();
             $stmt->store_result();
             if($stmt->num_rows == 1)
             {
-                $options = ['cost' => 11];
                 $stmt->bind_result($pwFromDb,$salt);
                 $stmt->fetch();
-                
-                if (password_verify($pw . $salt, $pwFromDb)) 
-                {
-                    $resultFeedback = true;
-                }
+                $stmt->free_result();
+                return (password_verify($pw . $salt, $pwFromDb));
             }
-            $stmt->free_result();
         }
-        else { var_dump($db->error); }
-        return $resultFeedback;
+        else { var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
     }
-    public function addUserBoard($board, $name, $sid)
-    {
-        $guid = $this->createGUID();
-        $sql = "INSERT INTO board (bid, boardstate, name, sid, uid) VALUES";
-        $sql .= "(\"{$guid}\",\"{$board}\",\"{$name}\",\"{$sid}\",\"{$uid}\")";
-    }
-    public function setUserProgress($uid)
-    {
-        $uid = $userProgress['uid'];
-        $sqlRequest =  "UPDATE user SET score=\"{$points}\"" ;
-        $sqlRequest .= "WHERE uid=\"{$uid}\"";
-        return $sqlResult;
-    }
+
     //WORKING
-    public function getCurrentUserID()
+    public function getCurrentUserID($username = "")
     {
-        $sqlRequest = "SELECT uid FROM user WHERE name=\"{$Content->userName}\"";
-        $return = $this->selectFromDB($sqlRequest);
+        $db = $this->linkDB();
+
+        if($username == ""){
+            $name = $this->Content->userName;
+        }
+
+        if($stmt = $db->prepare("SELECT uid FROM user WHERE name=?"))
+        {
+            $stmt->bind_param("s",$name);
+            $stmt->execute();
+            $stmt->store_result();
+
+            if($stmt->num_rows == 1)
+            {
+                $stmt->bind_result($currentUid);
+
+                $stmt->fetch();
+                return $currentUid;
+            }
+            else
+            {   
+                var_dump("Current/Entered User Name: " . $name . " <br><br>");
+                var_dump("Number of rows from statement " .$stmt->num_rows . " <br><br>");
+            }
+        }        
+        return "HURZ in getCurrentUserID";
     }
+
     public function getSidByDimension($dimension)
     {
-        $sqlRequest = "SELECT sid FROM size WHERE dimension=".$dimension;
-        $sqlResult = $this->selectFromDB($sqlRequest);
-        return $sqlResult;
+        $db = $this->linkDB();
+        $resultFeedback = false;
+        if ($stmt = $db->prepare("SELECT sid FROM size WHERE dimension=?"))
+        {
+            $stmt->bind_param("i",$dimension);
+            $stmt->execute();
+            $stmt->store_result();
+            if($stmt->num_rows == 1)
+            {
+                $stmt->bind_result($sid);
+                $stmt->fetch();
+                $stmt->free_result();
+                return $sid;
+            }
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
     }
+
+
+    public function addCurrentUserBoard($board,$boardName,$boardDim,$score)
+    {
+        $bid    = $this->createGUID();
+        $db     = $this->linkDB();
+        $userId = $this->getCurrentUserID();
+        $sid    = $this->getSidByDimension($boardDim);
+
+        var_dump($bid, $userId, $sid);
+
+        echo "<br><br>started to add User Board";
+
+        if($stmt = $db->prepare("INSERT INTO board VALUES (?,?,?,?,?,?)")){
+            
+
+            $stmt->bind_param("sssssi",$bid, $board, $boardName, $sid, $userId,$score);            
+
+            ($stmt->execute());
+            return true;
+        }        
+        else
+        {
+            var_dump($db->error);
+            return false;
+        }    
+        return false;
+    }
+
+    /*public function setUserProgress($uid)
+    {
+        $uid = $userProgress['uid'];
+
+       $blob = fopen($filePath, 'rb');
+ 
+        $sql = "INSERT INTO files(mime,data) VALUES(:mime,:data)";
+        $stmt = $this->pdo->prepare($sql);
+ 
+        $stmt->bindParam(':mime', $mime);
+        $stmt->bindParam(':data', $blob, PDO::PARAM_LOB);
+ 
+        return $stmt->execute();
+    } */
+
+
+
     public function getLeaderboard()
     {
         $sqlRequest = "SELECT name, score FROM user ORDER BY score desc";

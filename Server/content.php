@@ -10,15 +10,18 @@ class Content
 
     public $userName = "";
 
+    public $currentBoard = array();
+
 	public function __construct()
 	{
 		include 'database.php';
+
 		$this->db = new dataBase($this);
-    if(isset($_SESSION["username"]))
-    {
-      $this->userName = $_SESSION["username"];
+        if(isset($_SESSION["username"]))
+        {
+          $this->userName = $_SESSION["username"];
+        }
     }
-	}
 
 	public function showNavigation($selected)
 	{
@@ -50,7 +53,11 @@ class Content
 	{
 		$this->showNavigation(-1);
 		echo '<h1>Welcome to Game Of Life</h1>';
-        echo 'Created by <b>Paul Scheel</b> and <b>Marvin M&uuml;ller</b> in 2017';
+
+        if(rand(0,1)==1)
+            echo 'Created by <b>Paul Scheel</b> and <b>Marvin M&uuml;ller</b> in 2017';
+        else
+            echo 'Created by <b>Marvin M&uuml;ller</b> and <b>Paul Scheel</b> in 2017';
 	}
 
 	public function showLogin($values, $errors)
@@ -139,6 +146,15 @@ class Content
 		echo '<script type="text/javascript">
 		        generateBoard('.$this->gameDim.');
 			  </script>';
+
+        echo '<form action="welcome.php" method="POST">
+                <table>
+                    <tr>
+                        <td><input type="submit" name="testDb" value="testDB"/></td>
+                    </tr>
+                </table>
+                <input type="hidden" name="do" value="testDb"/>
+              </form>';
 	}
 
     public function showLeaderboard()
@@ -146,5 +162,38 @@ class Content
         $this->showNavigation(2);
     }
 
+    public function testDb(){
+
+        $arr = "";
+        $score = "1337";
+        $handle = fopen("tmpfile.txt", "rb");
+        if ($handle) {
+            while (($line = fgets($handle)) !== false) {
+                
+                $line = substr($line,strrpos($line," ")); 
+                $line = str_replace(" ", "",$line);
+                $line = str_replace("/r/n", "",$line);
+                $arr .=$line ."|";
+            }
+            file_put_contents("tmpfile.txt", "");
+            fclose($handle);
+        } else {
+            // error opening the file.
+        } 
+
+        $tmp = $this->db->addCurrentUserBoard($arr,"tollesBoard",50,$score);
+
+        echo 'Success? : ' . $tmp;
+    }
+
+    public static function pushLineToBoardARR($key, $value){
+        
+        array_push($this->currentBoard, $key, $value);
+
+    }
 }
+
+// int array_push ( array &$array , mixed $value1 [, mixed $... ] )
+
+// [0] {[key] = 0 ; [value ] = 0101010010101011010^010101010101010101010101010101001};
 ?>
