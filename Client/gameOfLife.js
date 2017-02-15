@@ -37,23 +37,23 @@ function generateBoard(_gameDim)
 
     //Generate Slider
     sliderWidth = _gameDim * CELLSIZE;
-    document.write(`<input type="range" min="0" max="${SLIDER_MAX}" style="width:${sliderWidth}px;" value="0" onchange="speedChanged(this.value)" oninput="speedChanging(this.value)"><br/><label id="speed">0</label><br/>`);
+    document.write("<input type=\"range\" min=\"0\" max=\"${SLIDER_MAX}\" style=\"width:${sliderWidth}px;\" value=\"0\" onchange=\"speedChanged(this.value)\" oninput=\"speedChanging(this.value)\"><br/><label id=\"speed\">0</label><br/>");
 
     document.write("<label id=\"generationsLabel\">Generations per Second | </label><br/>");
     document.write("<label id=\"displaysLabel\">Displays per Second | </label><br/><br/><br/>");
     document.write("<input type=\"button\" value=\"randomize\" onclick=\"randomBoard()\"/><br/><br/>");
-    //document.write('<input type=\"button\" name=\"resetButton\" value=\"Test DB functions\" onclick=\"testDb()\"/><br/><br/>');
+    document.write("<input type=\"button\" name=\"resetButton\" value=\"Test DB functions\" onclick=\"testDb()\"/><br/><br/>");
     document.write("<input type=\"submit\" value=\"dataTransfer\" onclick=\"fuckload2tmp()\"/><br/><br/>");
 
-    document.write('<label>Presets:    ' +
-                    '<select name="presets" id="presets" size="1">      ' +
-                      '<option>Sauwastika</option> ' +
-                      '<option>SquareTest</option>' +
-                      '<option>SquartTest1</option>' +
-                      '<option>SquartTest3</option>' +
-                      '<option>SquartTest2</option>' +
-                    '</select>' +
-                  '</label>');
+    document.write("<label>Presets:    " +
+                    "<select name=\"presets\" id=\"presets\" size=\"1\">      " +
+                      "<option>Sauwastika</option> " +
+                      "<option>SquareTest</option>" +
+                      "<option>SquartTest1</option>" +
+                      "<option>SquartTest3</option>" +
+                      "<option>SquartTest2</option>" +
+                    "</select>" +
+                  "</label>");
 
     //Generate canvas
     document.write("<br/><br/><canvas id=\"myCanvas\" width=\"" + gameDim * CELLSIZE + "\" height=\"" + gameDim * CELLSIZE + "\" moz-opaque></canvas>");
@@ -61,7 +61,7 @@ function generateBoard(_gameDim)
     var c = document.getElementById("myCanvas");
     ctx = c.getContext("2d");
 
-    c.addEventListener('mousedown', function (evt)
+    c.addEventListener("mousedown", function (evt)
     {
         var mousePos = getMousePos(c, evt);
 

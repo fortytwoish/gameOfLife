@@ -97,6 +97,15 @@ class Content
                 <input type="submit" name="do" value="Logout" />
                 <p>showing account of user: '.$this->userName.'</p>
               </form>';
+
+        /*  echo '<form action="welcome.php" method="POST">
+                <table>
+                    <tr>
+                        <td><input type="submit" name="testDb" value="testDB"/></td>
+                    </tr>
+                </table>
+                <input type="hidden" name="do" value="testDb"/>
+              </form>'; */
     }
 
     private function setUser($username)
@@ -149,7 +158,7 @@ class Content
 
     public function showLeaderboard()
     {
-        //USE db query called " getLeaderboard()";
+        $this->getLeaderBoardArray();
         $this->showNavigation(2);
     }
 
@@ -186,8 +195,8 @@ class Content
         
         //buildUp FileString
         if ($handle) {
-            while (($line = fgets($handle)) !== false) {
-                
+            while (($line = fgets($handle)) !== false) 
+            {                
                 $line = substr($line,strrpos($line," ")); 
                 $line = str_replace(" ", "",$line);
                 $line = str_replace("/r/n", "",$line);
@@ -199,30 +208,105 @@ class Content
             // error opening the file.
         } 
 
-
         //SET VALUES
         $tmp = $this->db->addCurrentUserBoard($arr,"tollesBoard",50,$score);
         echo 'Success? : ' . $tmp;
     }
+    
+     public function getLeaderBoardArray()
+     {
+        $tableString = "";
+
+        //dummy data to be replaced by:
+        //$leaderBoard = getLeaderBoard()
+
+        $leaderBoard[0][place]   = "rank";
+        $leaderBoard[0][uid]   = "id";
+        $leaderBoard[0][name]  = "name";
+        $leaderBoard[0][score]  = "score";
+        
+        $leaderBoard[1][rank]   = "";
+        $leaderBoard[1][uid]   = "12331231231";
+        $leaderBoard[1][name]  = "Pratzner";
+        $leaderBoard[1][score]  = "15000";
+        
+        $leaderBoard[2][rank]   = "";
+        $leaderBoard[2][uid]   = "12312311231";
+        $leaderBoard[2][name]  = "testheinz";
+        $leaderBoard[2][score]  = "150";
+        
+        $leaderBoard[4][rank]   = "";
+        $leaderBoard[4][uid]   = "262";
+        $leaderBoard[4][name]  = "testjosef";
+        $leaderBoard[4][score]  = "12312";
+
+        $leaderBoard[5][rank]   = "";
+        $leaderBoard[5][uid]   = "256";
+        $leaderBoard[5][name]  = "testhurz";
+        $leaderBoard[5][score]  = "802";
+
+        $leaderBoard[6][rank]   = "";
+        $leaderBoard[6][uid]   = "5262";
+        $leaderBoard[6][name]  = "testdude";
+        $leaderBoard[6][score]  = "9172319";
+
+        $leaderBoard[7][rank]   = "";
+        $leaderBoard[7][uid]   = "12353423231";
+        $leaderBoard[7][name]  = "testgash";
+        $leaderBoard[7][score]  = "51209123";
+
+        $leaderBoard[8][rank]   = "";
+        $leaderBoard[8][uid]   = "98765";
+        $leaderBoard[8][name]  = "testtrash";
+        $leaderBoard[8][score]  = "123";
+
+        $this->array_sort_by_column($leaderBoard, 'score');
+
+        $tableString .= "<center>";
+        $tableString .= "<table style='width:50%' id='leaderTable'>";
+
+        for($x = 0; $x < count($leaderBoard); $x++)
+        {
+            $tableString .= "<tr>";
+            if($x >0)
+                $leaderBoard[$x][rank] = $x . ".";
+                foreach ($leaderBoard[$x] as $row)
+                {
+                    if($x>0)
+                        $tableString .=  "<td>".$row."</td>";
+                    else
+            	        $tableString .=  "<th>".$row."</th>";
+                }
+                $tableString .= "</tr>";
+        }
+
+        $tableString .= "</table>";
+        $tableString .= "</center>";
+
+        echo $tableString;        
+     }
+
+     function array_sort_by_column(&$arr, $col, $dir = SORT_DESC) {
+         $sort_col = array();
+         foreach ($arr as $key=> $row) {
+             $sort_col[$key] = $row[$col];
+         }
+
+         array_multisort($sort_col, $dir, $arr);
+     }
 }
 
 
 /*FOR DB QUery TESTING PURPOSE
-     public function testDB(){
+ * public function testDB(){
 
-        $tmp  = $this->db->getLeaderboard();
+$result = $this->db->getLeaderboard();
 
-        var_dump($tmp);
+var_dump($result);
 
-            }
-        echo '<form action="welcome.php" method="POST">
-                <table>
-                    <tr>
-                        <td><input type="submit" name="testDb" value="testDB"/></td>
-                    </tr>
-                </table>
-                <input type="hidden" name="do" value="testDb"/>
-              </form>'; 
-    }
+return $result;
+
+}
+
     */
 ?>

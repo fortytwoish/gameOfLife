@@ -64,7 +64,8 @@ class dataBase
         $salt    = uniqid(mt_rand(), true);
         $hash    = password_hash($pw.$salt, PASSWORD_BCRYPT, $options);
         
-        if($stmt = $db->prepare("INSERT INTO user VALUES (?,?,?,?,?)")){
+        if($stmt = $db->prepare("INSERT INTO user VALUES (?,?,?,?,?)"))
+        {
         
             $stmt->bind_param("sssis",$uid, $name, $hash, $score, $salt);
             $stmt->execute();
@@ -77,8 +78,7 @@ class dataBase
     // WORKING
     public function loginUser($name, $pw)
     {
-        $db             = $this->linkDB();
-        $resultFeedback = false;
+        $db = $this->linkDB();
 
         if ($stmt = $db->prepare("SELECT pw, salt FROM user WHERE name=?"))
         {
@@ -95,6 +95,7 @@ class dataBase
             }
         }
         else { var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return false;
     }
 
     //WORKING
@@ -119,19 +120,14 @@ class dataBase
                 $stmt->fetch();
                 return $currentUid;
             }
-            else
-            {   
-                var_dump("Current/Entered User Name: "    . $name . " <br><br>");
-                var_dump("Number of rows from statement " . $stmt->num_rows . " <br><br>");
-            }
+            else { var_dump("Current/Entered User Name: "    . $name . " <br><br>"); }
         }        
-        return "HURZ in getCurrentUserID";
+        return "Error in 'getCurrentUserID'";
     }
 
     public function getSidByDimension($dimension)
     {
-        $db             = $this->linkDB();
-        $resultFeedback = false;
+        $db = $this->linkDB();
 
         if ($stmt = $db->prepare("SELECT sid FROM size WHERE dimension=?"))
         {
@@ -147,8 +143,8 @@ class dataBase
             }
         }
         else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return null;
     }
-
 
     public function addCurrentUserBoard($board,$boardName,$boardDim,$score)
     {
@@ -168,18 +164,13 @@ class dataBase
 
             return true;
         }        
-        else
-        {
-            var_dump($db->error);
-            return false;
-        }    
-        return false;
+        else { var_dump($db->error); return false; }    
     }
 
     //TODO: ENFORCE UNIQUE NAMES PER PLAYER
     public function getBoardID($boardName){
 
-        $uid    = getCurrentUserID();
+        $uid    = $this->getCurrentUserID();
         $db     = $this->linkDB();
 
         if ($stmt = $db->prepare("SELECT bid FROM board WHERE uid=? AND name=?"))
@@ -196,7 +187,7 @@ class dataBase
             }
         }
         else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
-
+        return "Error in 'getBoardID'";
     }
 
     //TODO: get $bid properly
@@ -205,8 +196,6 @@ class dataBase
         //Check for BID solution, for debug hardcoded!
         $bid    = "547156ae-0088-4537-ae6c-2589e83b6cce";
         $db     = $this->linkDB();
-        $userId = getCurrentUserID();
-        $sid    = $this->getSidByDimension($boardDim);
 
         if($stmt = $db->prepare("UPDATE board SET boardstate=?, score=? WHERE bid=?"))
         {            
@@ -219,13 +208,11 @@ class dataBase
             var_dump($db->error);
             return false;
         }    
-        return false;
-
     }
 
     //net schön aber wegweisend
     //TODO: Set OutputStyle the way demanded!!!
-    public function getLeaderboard()
+    public function getLeaderBoard()
     {
         $db = $this->linkDB();
 
@@ -235,34 +222,24 @@ class dataBase
             $stmt->execute();
             $stmt->store_result();
 
-            $score  = null;
-            $uid    = null;
-            $sid    = null;
+            $score = null;
+            $uid   = null;
+            $sid   = null;
 
             $stmt->bind_result($score,$uid,$sid);
-            while ($stmt->fetch()) 
-            { 
-                array_push($resultArr, $score, $uid, $sid);
-            }
+
+            $resultArr = $stmt->mysqli_fetch_all();
 
             $stmt->free_result();
             return $resultArr;
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+       // else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getLeaderBoard()'";
     }
-
-
-    public function getMaxScore()
-    {
-        $sqlRequest = "SELECT dimension, maxscore FROM size";
-        $sqlResult = $this->insertIntoDB($sqlRequest);
-        return $sqlResult;
-    }
-
 
     public function getUserProgress($uid = ""){
 
-        if($uid == "") $uid = getCurrentUserID();
+        if($uid == "") $uid = $this->getCurrentUserID();
 
         $db = $this->linkDB();
 
@@ -270,23 +247,22 @@ class dataBase
         {
             $resultArr = array();
 
-            bind_param("s",$uid);
+            $stmt->bind_param("s",$uid);
             $stmt->execute();
             $stmt->store_result();
 
             $stmt->bind_result($score,$sid);
 
-            while ($stmt->fetch()) { // For each row
-        
+            while ($stmt->fetch())
+            {
                 array_push($resultArr, $score, $sid);
             }
 
-
             $stmt->free_result();
             return $resultArr;
-
         }
         else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getUserProgress'";
     }
 }
 ?>
