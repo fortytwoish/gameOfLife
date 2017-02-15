@@ -135,7 +135,6 @@ class Content
     public function logout()
     {
         $this->setUser("");
-
         $this->showWelcome();
     }
 
@@ -146,27 +145,20 @@ class Content
 		echo '<script type="text/javascript">
 		        generateBoard('.$this->gameDim.');
 			  </script>';
-
-        echo '<form action="welcome.php" method="POST">
-                <table>
-                    <tr>
-                        <td><input type="submit" name="testDb" value="testDB"/></td>
-                    </tr>
-                </table>
-                <input type="hidden" name="do" value="testDb"/>
-              </form>';
-	}
+    }
 
     public function showLeaderboard()
     {
+        //USE db query called " getLeaderboard()";
         $this->showNavigation(2);
     }
 
-    public function testDb(){
+    public function updateBoardtoDb(){
 
         $arr = "";
-        $score = "1337";
+        $score = "1339";
         $handle = fopen("tmpfile.txt", "rb");
+
         if ($handle) {
             while (($line = fgets($handle)) !== false) {
                 
@@ -181,19 +173,55 @@ class Content
             // error opening the file.
         } 
 
-        $tmp = $this->db->addCurrentUserBoard($arr,"tollesBoard",50,$score);
+        $tmp = $this->db->setUserProgress($arr,50,$score);
 
         echo 'Success? : ' . $tmp;
     }
 
-    public static function pushLineToBoardARR($key, $value){
-        
-        array_push($this->currentBoard, $key, $value);
+    public function sendBoardToDB(){
 
+        $arr = "";
+        $score = "1337";
+        $handle = fopen("tmpfile.txt", "rb");
+        
+        //buildUp FileString
+        if ($handle) {
+            while (($line = fgets($handle)) !== false) {
+                
+                $line = substr($line,strrpos($line," ")); 
+                $line = str_replace(" ", "",$line);
+                $line = str_replace("/r/n", "",$line);
+                $arr .=$line ."|";
+            }
+            file_put_contents("tmpfile.txt", "");
+            fclose($handle);
+        } else {
+            // error opening the file.
+        } 
+
+
+        //SET VALUES
+        $tmp = $this->db->addCurrentUserBoard($arr,"tollesBoard",50,$score);
+        echo 'Success? : ' . $tmp;
     }
 }
 
-// int array_push ( array &$array , mixed $value1 [, mixed $... ] )
 
-// [0] {[key] = 0 ; [value ] = 0101010010101011010^010101010101010101010101010101001};
+/*FOR DB QUery TESTING PURPOSE
+     public function testDB(){
+
+        $tmp  = $this->db->getLeaderboard();
+
+        var_dump($tmp);
+
+            }
+        echo '<form action="welcome.php" method="POST">
+                <table>
+                    <tr>
+                        <td><input type="submit" name="testDb" value="testDB"/></td>
+                    </tr>
+                </table>
+                <input type="hidden" name="do" value="testDb"/>
+              </form>'; */
+    }
 ?>

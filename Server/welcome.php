@@ -4,9 +4,12 @@
     </HEAD>
     <BODY>
         <?php
+/*        	include 'config.php';
+			$config = new Config(); */
 
 			include 'content.php';
 			$content = new Content();
+
 
 			$errors = array();
 			$values = array("do" => "",
@@ -54,6 +57,9 @@
 					break;
 				case "showLeaderboard":
 					$content->showLeaderboard();
+					break;
+				case "testDb":
+					$content->testDb();
 					break;
                 case "accountAction":
                     {

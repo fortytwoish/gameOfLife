@@ -1,4 +1,5 @@
 <?php
+    include 'config.php';
     error_reporting(E_ALL);
     $responseStatus = '200 OK';
     $responseText = '';
