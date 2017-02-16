@@ -1,0 +1,44 @@
+Achievement_Logic.rtf
+
+TODO/TBD: 
+*	Visuelle Darstellung dieser ? --> jeweils Icon, in ner table unter profile darstellen?
+*	Add further Presets />/ achievement_17++
+*	add achievement to user TABLE!
+*	
+
+
+"0;0;0;0;0;0;0;0;0; 0; 0; 0; 0; 0";
+ 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+----------------------------------------------------------------------------------------------------------------------------
+ 1 <-> FieldSize (1.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt 		| Preset 1	im Freeplay freischalten
+ 2 <-> FieldSize (2.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt 		| Preset 2	im Freeplay freischalten
+ 3 <-> FieldSize (3.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt 		| Preset 3	im Freeplay freischalten
+ 4 <-> FieldSize (4.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt 		| Preset 4	im Freeplay freischalten
+ 5 <-> FieldSize (5.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt  		| Preset 5	im Freeplay freischalten
+----------------------------------------------------------------------------------------------------------------------------
+ 6 <-> MaxScore  (1.)	MaxScore erreicht												| Preset 6	im Freeplay freischalten
+ 7 <-> MaxScore  (2.) 	MaxScore erreicht												| Preset 7	im Freeplay freischalten
+ 8 <-> MaxScore  (3.) 	MaxScore erreicht												| Preset 8	im Freeplay freischalten
+ 9 <-> MaxScore  (4.) 	MaxScore erreicht												| Preset 9 	im Freeplay freischalten
+10 <-> MaxScore  (5.) 	MaxScore erreicht												| Preset10	im Freeplay freischalten
+11 <-> MaxScore  (1-5)	MaxScore erreicht												| Preset11	im Freeplay freischalten
+----------------------------------------------------------------------------------------------------------------------------
+12 <-> 1st Place reached on leaderboard
+13 <-> Glider    click_inserted on FreeplayBoard ( while logged in )
+14 <-> Saustika  click_inserted on FreeplayBoard ( while logged in )
+15 <-> Swastika	 click_inserted on FreeplayBoard ( while logged in )
+16 <-> ?????     click_inserted on FreeplayBoard ( while logged in )
+
+
+		FieldSizes:			DIM    		MaxScore
+(1.)	1_extraSmall <-> 	 50	  <->		5%
+(2.)	2_small		 <-> 	100	  <->	   10%
+(3.)	3_medium	 <-> 	200	  <->	   20%
+(4.)	4_large		 <-> 	500	  <->	   50%
+(5.)	5_extraLarge <->   1000	  <->	  100%			
+
+>>Shape Definitions:<<
+[1.]Glider
+[2.]Saustika
+[3.]Swastika
+[...]....
