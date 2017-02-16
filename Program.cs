@@ -50,11 +50,8 @@ namespace ConsoleApplication1
 
                             if (value.Equals('O'))
                             {
-                                foundCol = midCol - (midCol - tmpCol);
-                                foundRow = midRow - (midRow - tmpRow);
-
-                                foundCol -= midCol;
-                                foundRow -= midRow;
+                                foundCol = midCol - (midCol - tmpCol) - midCol;
+                                foundRow = midRow - (midRow - tmpRow) - midRow;
 
                                 tmpString += "\"" + foundRow + ":" + foundCol + "\"" + ",";
 
@@ -72,7 +69,7 @@ namespace ConsoleApplication1
                 listOfFileCoordinates.Add(fileName,tmpString);
             }
 
-            using (StreamWriter file = new StreamWriter("myfile.txt"))
+            using (StreamWriter file = new StreamWriter("cellCoordinates.txt"))
                 foreach (var entry in listOfFileCoordinates)
                     file.WriteLine("{0} :  {1} " + Environment.NewLine + Environment.NewLine, entry.Key, entry.Value); 
         }
