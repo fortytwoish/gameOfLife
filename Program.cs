@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleApplication1
 {
-    class Program
+    static class Program
     {
+        // ReSharper disable once UnusedParameter.Local
         static void Main(string[] args)
         {
+            if (args == null) throw new ArgumentNullException("args");
             string pathToCells = @"D:\_personal\cells\";
             var files = Directory.GetFiles(pathToCells);
 
@@ -21,57 +21,69 @@ namespace ConsoleApplication1
                 StreamReader reader = File.OpenText(file);
                 string line;
                 bool first = true;
-                int midRow = 0;
-                int midCol = 0;
                 var tmpString = "[";
                 var fileName = file;
+
+                int midRow = (File.ReadLines(file).Count() - 2) / 2;
+                var tmpRow = 1;
+                var lineCharCounter = 0;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    var tmpRow = 1;
-                    var tmpCol = 1;
-
-                    if (first)
+                    //get Line count
+                    int midCol = 0;
+                    if ((line.StartsWith(".") || line.StartsWith("O")) && first)
                     {
-                        var param = line.Split(' ');
-                        midRow = (int.Parse(param[0]) / 2);
-                        midCol = (int.Parse(param[1]) / 2);
+                        midCol = line.ToCharArray().Length /2;
                         first = false;
                     }
+                    else if (line.StartsWith("!")) continue;
+
+                    var tmpCol = 1;
+
+
                     var lineChars = line.ToCharArray();
                     //["-3:-3",".....
-                    if (lineChars[0].Equals('.') || lineChars[0].Equals('O'))
+                    if (!lineChars[0].Equals('.') && !lineChars[0].Equals('O')) continue;
+
+                    foreach (var value in lineChars)
                     {
-
-                        foreach (var value in lineChars)
+                        if (value.Equals('O'))
                         {
-                            var foundRow = 0;
-                            var foundCol = 0;
+                            var foundCol = midCol - (midCol - tmpCol) - midCol;
+                            var foundRow = midRow - (midRow - tmpRow) - midRow;
 
-
-                            if (value.Equals('O'))
-                            {
-                                foundCol = midCol - (midCol - tmpCol) - midCol;
-                                foundRow = midRow - (midRow - tmpRow) - midRow;
-
-                                tmpString += "\"" + foundRow + ":" + foundCol + "\"" + ",";
-
-                                tmpCol++;
-                            }
-                            else
-                                tmpCol++;
+                            tmpString += "\"" + foundRow + ":" + foundCol + "\"" + ",";
+                            lineCharCounter++;
+                            tmpCol++;
                         }
+                        else
+                            tmpCol++;
 
-                        tmpRow++;
+                        if (lineCharCounter > 6)
+                        {
+                            tmpString += Environment.NewLine;
+                            lineCharCounter = 0;
+                        }
                     }
+                    // ReSharper disable once RedundantAssignment
+                    tmpRow++;
                 }
                 tmpString = tmpString.Remove(tmpString.Length-1);
                 tmpString += "]";
                 listOfFileCoordinates.Add(fileName,tmpString);
             }
 
+
+
             using (StreamWriter file = new StreamWriter("cellCoordinates.txt"))
                 foreach (var entry in listOfFileCoordinates)
-                    file.WriteLine("{0} :  {1} " + Environment.NewLine + Environment.NewLine, entry.Key, entry.Value); 
+                {
+
+                    var shapeName = entry.Key.Substring(entry.Key.LastIndexOf(@"\", StringComparison.Ordinal)+1).Replace(".cells", "");
+
+                    file.WriteLine("{0} :  {1} " + Environment.NewLine + Environment.NewLine,"'"+ shapeName +"'", entry.Value); 
+
+                    }
         }
     }
 }
