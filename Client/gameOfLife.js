@@ -529,3 +529,10 @@ function insertPreset($presetName)
         getCellDiv(middle+ parseInt(tmp[0]), middle+ parseInt(tmp[1])).className = "aliveGameCell";
     });
 }
+
+function setPresets(_jsonContent) {
+
+    json = JSON.parse(_jsonContent);
+        
+    console.log(shapes);
+}

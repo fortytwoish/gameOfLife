@@ -6,6 +6,7 @@ class Content
 {
 	private $db;
     private $gameDim    = 500; //Predefined for now //Should be odd always to guarantee middle
+	private $freePlayGameDim = 300;
 	private $isLoggedIn = false;
 
     public $userName = "";
@@ -41,6 +42,9 @@ class Content
 						</li>
 						<li>
 							<a href="?do=showGame"        class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">Play</a>
+						</li>
+						<li>
+							<a href="?do=freePlay"        class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">FreePlay</a>
 						</li>
 						<li>
 							<a href="?do=showLeaderboard" class="'.($selected == 2 ? "selectedNavItem" : "deselectedNavItem").'">Leaderboard</a>
@@ -97,15 +101,6 @@ class Content
                 <input type="submit" name="do" value="Logout" />
                 <p>showing account of user: '.$this->userName.'</p>
               </form>';
-
-        /*  echo '<form action="welcome.php" method="POST">
-                <table>
-                    <tr>
-                        <td><input type="submit" name="testDb" value="testDB"/></td>
-                    </tr>
-                </table>
-                <input type="hidden" name="do" value="testDb"/>
-              </form>'; */
     }
 
     private function setUser($username)
@@ -131,7 +126,7 @@ class Content
     public function create($username, $password)
     {
         echo $username.' your account has been created';
-        
+
         $this->db->createUser($username, $password);
 
         echo ' creation done';
@@ -147,6 +142,20 @@ class Content
         $this->showWelcome();
     }
 
+	public function showFreePlay()
+	{
+		$contents = file_get_contents("../cellPresetCoordinates.json");
+		$contents = utf8_encode($contents);
+		$result = json_encode($contents);
+		$this->showNavigation(3);
+
+		echo '<script type="text/javascript">
+		        generateBoard('.$this->freePlayGameDim.');
+				setPresets('.$result.');
+			  </script>';
+
+	}
+
 	public function showGame()
 	{
 		$this->showNavigation(1);
@@ -154,6 +163,15 @@ class Content
 		echo '<script type="text/javascript">
 		        generateBoard('.$this->gameDim.');
 			  </script>';
+
+		echo '<form action="welcome.php" method="POST">
+                <table>
+                    <tr>
+                        <td><input type="submit" name="testDb" value="testDB"/></td>
+                    </tr>
+                </table>
+                <input type="hidden" name="do" value="testDb"/>
+              </form>';
     }
 
     public function showLeaderboard()
@@ -170,8 +188,8 @@ class Content
 
         if ($handle) {
             while (($line = fgets($handle)) !== false) {
-                
-                $line = substr($line,strrpos($line," ")); 
+
+                $line = substr($line,strrpos($line," "));
                 $line = str_replace(" ", "",$line);
                 $line = str_replace("/r/n", "",$line);
                 $arr .=$line ."|";
@@ -180,7 +198,7 @@ class Content
             fclose($handle);
         } else {
             // error opening the file.
-        } 
+        }
 
         $tmp = $this->db->setUserProgress($arr,50,$score);
 
@@ -192,12 +210,12 @@ class Content
         $arr = "";
         $score = "1337";
         $handle = fopen("tmpfile.txt", "rb");
-        
+
         //buildUp FileString
         if ($handle) {
-            while (($line = fgets($handle)) !== false) 
-            {                
-                $line = substr($line,strrpos($line," ")); 
+            while (($line = fgets($handle)) !== false)
+            {
+                $line = substr($line,strrpos($line," "));
                 $line = str_replace(" ", "",$line);
                 $line = str_replace("/r/n", "",$line);
                 $arr .=$line ."|";
@@ -206,13 +224,13 @@ class Content
             fclose($handle);
         } else {
             // error opening the file.
-        } 
+        }
 
         //SET VALUES
         $tmp = $this->db->addCurrentUserBoard($arr,"tollesBoard",50,$score);
         echo 'Success? : ' . $tmp;
     }
-    
+
      public function getLeaderBoardArray()
      {
         $tableString = "";
@@ -224,17 +242,17 @@ class Content
         $leaderBoard[0][uid]   = "id";
         $leaderBoard[0][name]  = "name";
         $leaderBoard[0][score]  = "score";
-        
+
         $leaderBoard[1][rank]   = "";
         $leaderBoard[1][uid]   = "12331231231";
         $leaderBoard[1][name]  = "Pratzner";
         $leaderBoard[1][score]  = "15000";
-        
+
         $leaderBoard[2][rank]   = "";
         $leaderBoard[2][uid]   = "12312311231";
         $leaderBoard[2][name]  = "testheinz";
         $leaderBoard[2][score]  = "150";
-        
+
         $leaderBoard[4][rank]   = "";
         $leaderBoard[4][uid]   = "262";
         $leaderBoard[4][name]  = "testjosef";
@@ -283,7 +301,7 @@ class Content
         $tableString .= "</table>";
         $tableString .= "</center>";
 
-        echo $tableString;        
+        echo $tableString;
      }
 
      function array_sort_by_column(&$arr, $col, $dir = SORT_DESC) {
@@ -294,6 +312,17 @@ class Content
 
          array_multisort($sort_col, $dir, $arr);
      }
+
+	  public function testDb(){
+
+		  $contents = file_get_contents("../cellPresetCoordinates.json");
+		  var_dump($contents);
+		  $contents = utf8_encode($contents);
+		  var_dump($contents);
+		  $results = json_encode($contents);
+		  var_dump($results);
+	}
+
 }
 
 

@@ -52,6 +52,9 @@
                         $content->showAccount();
                     }
 					break;
+				case "freePlay": 
+					$content->showFreePlay();
+					break;
 				case "showGame":
 					$content->showGame();
 					break;
