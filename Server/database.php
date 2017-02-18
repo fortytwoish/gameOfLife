@@ -58,6 +58,8 @@ class dataBase
     public function createUser($name, $pw)
     {
         $db      = $this->linkDB();
+
+        $this->setUserProgress("",15,0);
         $uid     = $this->createGUID();
         $score   = 0;
         $options = ['cost' => 11];
@@ -303,11 +305,11 @@ class dataBase
             $stmt->execute();
             $stmt->store_result();
 
-            $stmt->bind_result($score,$sid);
+            $stmt->bind_result($name);
 
             while ($stmt->fetch())
             {
-                array_push($resultArr, $score, $sid);
+                array_push($resultArr, $name);
             }
 
             $stmt->free_result();
