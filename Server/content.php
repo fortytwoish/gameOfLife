@@ -49,16 +49,23 @@ class Content
 				   ? 'Free Play'
 				   : 'Play';
 
-		echo '	<nav>
+        echo '	<div id="notificationBar" style="position:absolute; left: 0; top: 0; background: #6DD; height: auto; width: 90%; margin-left: 5%; visibility: hidden; text-align: center; padding: 10px; font-size: 40pt; color: white; box-shadow: 5px 5px 5px #444; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;"></div>
+                <nav>
 					<ul>
 						<li>
-							<a href="?do=showAccount"       class="'.($selected == 0 ? "selectedNavItem" : "deselectedNavItem").'">'.$loginText.'</a>
+							<a href="?do=showAccount"       class="'.($selected == 0
+                                                                      ? "selectedNavItem"
+                                                                      : "deselectedNavItem").'">'.$loginText.'</a>
 						</li>
 						<li>
-							<a href="?do=showGameSelection" class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">'.$playText.'</a>
+							<a href="?do=showGameSelection" class="'.($selected == 1
+                                                                      ? "selectedNavItem"
+                                                                      : "deselectedNavItem").'">'.$playText.'</a>
 						</li>
 						<li>
-							<a href="?do=showLeaderboard"   class="'.($selected == 2 ? "selectedNavItem" : "deselectedNavItem").'">Leaderboard</a>
+							<a href="?do=showLeaderboard"   class="'.($selected == 2
+                                                                      ? "selectedNavItem"
+                                                                      : "deselectedNavItem").'">Leaderboard</a>
 						</li>
 					</ul>
 				</nav>';
@@ -137,20 +144,6 @@ class Content
 
     }
 
-    public function showFreePlay()
-	{
-		$contents = file_get_contents("../cellPresetCoordinates.json");
-		$contents = utf8_encode($contents);
-		$result = json_encode($contents);
-		$this->showNavigation(3);
-
-		echo '<script type="text/javascript">
-		        generateBoard('.$this->freePlayGameDim.');
-				setPresets('.$result.');
-			  </script>';
-
-	}
-
     public function showGameSelection()
     {
         $this->showNavigation(1);
@@ -177,10 +170,20 @@ class Content
 	{
         $this->gameDim = $boardSize;
 
+        $isFreePlay = ($this->userName == null);
+
+        if($isFreePlay)
+        {
+            $contents = file_get_contents("../cellPresetCoordinates.json");
+            $contents = utf8_encode($contents);
+            $result   = json_encode($contents);
+        }
+
 		$this->showNavigation(1);
 
 		echo '<script type="text/javascript">
-		        generateBoard('.$this->gameDim.', '.($this->userName == null).');
+		        generateBoard('.$this->gameDim.', '.$isFreePlay.');
+                '.($isFreePlay?'setPresets('.$result.');':'').'
 			  </script>';
 
 		echo '<form action="welcome.php" method="POST">

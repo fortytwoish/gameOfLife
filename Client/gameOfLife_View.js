@@ -143,6 +143,48 @@ function setDisplayStyle( style )
     display();
 }
 
+var notificationTimeout; //prevents overlapping notifications
+
+function displayNotification(text)
+{
+    clearTimeout( notificationTimeout );
+
+    var notificationBar = document.getElementById( "notificationBar" );
+    
+    notificationBar.style.height = 0;
+    notificationBar.style.visibility = "visible";
+
+    var height = 0;
+
+    var timerInterval = setInterval( function ()
+    {
+        height+= 2;
+        notificationBar.style.height = height + "px";
+        if(height >= 75)
+        {
+            notificationBar.innerHTML = "<span style=\"vertical-align: center;\">" + text + "</span>";
+            clearInterval( timerInterval );
+        }
+    }, 10 );
+
+    notificationTimeout = setTimeout( function ()
+    {
+        notificationBar.innerHTML = null;
+
+        var timerInterval = setInterval( function ()
+        {
+            height -= 1;
+            notificationBar.style.height = height + "px";
+            if ( height <= 0 )
+            {
+                clearInterval( timerInterval );
+                notificationBar.style.visibility = "hidden";
+            }
+        }, 10 );
+    }, 5000 );
+
+}
+
 //====================================================================================================
 //      User interaction
 //====================================================================================================
@@ -150,6 +192,8 @@ function setDisplayStyle( style )
 //Maximizes the canvas' size while making sure that cells always are multiples of 1 pixel² in size. (Subpixels look ugly)
 function canvasClicked(evt)
 {
+    displayNotification( "you clicked" );
+
     var mousePos = getMousePos( canvas, evt );
 
     if ( board[mousePos.x][mousePos.y] )
