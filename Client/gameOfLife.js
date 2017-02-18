@@ -24,7 +24,7 @@ var seconds = 0;
 var timerInterval;
 
 //Canvas style variables
-var onFillStyle = "rgba(255,0,50,1.0)";
+var onFillStyle = "rgba(0,200,50,1.0)";
 var offFillStyle = "rgba(40,40,40,1.0)";
 var ctx;
 
@@ -54,7 +54,7 @@ function generateBoard( _gameDim, isFreePlay )
                             </div>
                             <div id="flexMiddle">
                                 <center>
-                                    <canvas id="myCanvas" width="${gameDim * cellsize}" height="${gameDim * cellsize}" style="min-width: ${gameDim}; min-height: ${gameDim};" moz-opaque></canvas>
+                                    <canvas id="myCanvas" width="${gameDim * cellsize}" height="${gameDim * cellsize}" style="min-width: ${gameDim}; min-height: ${gameDim}; background: black;" moz-opaque></canvas>
                                 </center>
                             </div>
                             <div id="flexRight">
@@ -250,7 +250,7 @@ function randomBoard()
 
 function drawPixel( x, y )
 {
-    ctx.fillRect( x * cellsize, y * cellsize, cellsize, cellsize );
+    ctx.fillRect( x * cellsize * 1.01, y * cellsize * 1.01, cellsize, cellsize );
 }
 
 function getMousePos( canvas, evt )
