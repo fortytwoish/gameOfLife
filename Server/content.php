@@ -9,8 +9,7 @@ class Content
     //====================================================================================================
 	private $db;
     private $gameDim;
-	private $freePlayGameDim = 50;
-	private $isLoggedIn      = false;
+	private $isLoggedIn = false;
 
     public $userName     = null;
     public $currentBoard = array();
