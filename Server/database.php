@@ -16,7 +16,7 @@ class dataBase
     public function __construct($_content)
     {
         $this->Content = $_content;
-    }   
+    }
     public function selectFromDB($sql)
     {
         $db     = $this->linkDB();
@@ -63,13 +63,13 @@ class dataBase
         $options = ['cost' => 11];
         $salt    = uniqid(mt_rand(), true);
         $hash    = password_hash($pw.$salt, PASSWORD_BCRYPT, $options);
-        
+
         if($stmt = $db->prepare("INSERT INTO user VALUES (?,?,?,?,?)"))
         {
-        
+
             $stmt->bind_param("sssis",$uid, $name, $hash, $score, $salt);
             $stmt->execute();
-        }        
+        }
         else
         {
             var_dump($db->error);
@@ -121,15 +121,15 @@ class dataBase
                 return $currentUid;
             }
             else { var_dump("Current/Entered User Name: "    . $name . " <br><br>"); }
-        }        
+        }
         return "Error in 'getCurrentUserID'";
     }
 
-    public function getSidByDimension($dimension)
+    public function getSidDescriptionByDimension($dimension)
     {
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("SELECT sid FROM size WHERE dimension=?"))
+        if ($stmt = $db->prepare("SELECT description FROM size WHERE dimension=?"))
         {
             $stmt->bind_param("i",$dimension);
             $stmt->execute();
@@ -159,12 +159,12 @@ class dataBase
 
         if($stmt = $db->prepare("INSERT INTO board VALUES (?,?,?,?,?,?)")){
 
-            $stmt->bind_param("sssssi",$bid, $board, $boardName, $sid, $userId,$score);            
+            $stmt->bind_param("sssssi",$bid, $board, $boardName, $sid, $userId,$score);
             ($stmt->execute());
 
             return true;
-        }        
-        else { var_dump($db->error); return false; }    
+        }
+        else { var_dump($db->error); return false; }
     }
 
     //TODO: ENFORCE UNIQUE NAMES PER PLAYER
@@ -198,16 +198,16 @@ class dataBase
         $db     = $this->linkDB();
 
         if($stmt = $db->prepare("UPDATE board SET boardstate=?, score=? WHERE bid=?"))
-        {            
-            $stmt->bind_param("sis",$board,$score,$bid);            
+        {
+            $stmt->bind_param("sis",$board,$score,$bid);
             ($stmt->execute());
             return true;
-        }        
+        }
         else
         {
             var_dump($db->error);
             return false;
-        }    
+        }
     }
 
     //net schön aber wegweisend
@@ -216,25 +216,21 @@ class dataBase
     {
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("SELECT score,uid,sid FROM progress ORDER BY score desc"))
+        if ($stmt = $db->prepare("SELECT progress.score,user.name,size.description FROM progress, user, size WHERE progress.uid = user.uid AND progress.sid = size.sid ORDER BY score desc"))
         {
-            $resultArr = array();
+            $results_array = array();
             $stmt->execute();
-            $stmt->store_result();
+            $result = $stmt->get_result();
 
-            $score = null;
-            $uid   = null;
-            $sid   = null;
-
-            $stmt->bind_result($score,$uid,$sid);
-
-            $resultArr = $stmt->mysqli_fetch_all();
+            while ($row = $result->fetch_assoc()) {
+                $results_array[] = $row;
+            }
 
             $stmt->free_result();
-            return $resultArr;
+            return $results_array;
         }
-       // else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
-        return "Error in 'getLeaderBoard()'";
+        // else {  var_dump($db->error . "<br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getLeaderBoard()'". $stmt->error;
     }
 
     public function getUserProgress($uid = ""){
@@ -243,7 +239,7 @@ class dataBase
 
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("SELECT score, sid FROM progress WHERE uid =?"))
+        if ($stmt = $db->prepare("SELECT score,sid FROM progress WHERE uid =?"))
         {
             $resultArr = array();
 
@@ -263,6 +259,85 @@ class dataBase
         }
         else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
         return "Error in 'getUserProgress'";
+    }
+
+    public function getSizes(){
+
+        $uid = $this->getCurrentUserID();
+
+        $db = $this->linkDB();
+
+        if ($stmt = $db->prepare("select max(progress.score), size.description from progress, size WHERE progress.uid = ? AND progress.sid = size.sid"))
+        {
+            $resultArr = array();
+
+            $stmt->bind_param("s",$uid);
+            $stmt->execute();
+            $stmt->store_result();
+
+            $stmt->bind_result($score,$description);
+
+            while ($stmt->fetch())
+            {
+                array_push($resultArr, $score, $description);
+            }
+
+            $stmt->free_result();
+            return $resultArr;
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getUserProgress'";
+    }
+
+    public function getBoards(){
+
+        $uid = $this->getCurrentUserID();
+
+        $db = $this->linkDB();
+
+        if ($stmt = $db->prepare("SELECT boardname FROM board WHERE uid =?"))
+        {
+            $resultArr = array();
+
+            $stmt->bind_param("s",$uid);
+            $stmt->execute();
+            $stmt->store_result();
+
+            $stmt->bind_result($score,$sid);
+
+            while ($stmt->fetch())
+            {
+                array_push($resultArr, $score, $sid);
+            }
+
+            $stmt->free_result();
+            return $resultArr;
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getUserProgress'";
+    }
+
+    public function getBoard($boardName){
+
+        $uid = $this->getCurrentUserID();
+
+        $db = $this->linkDB();
+
+        if ($stmt = $db->prepare("SELECT board FROM board WHERE boardname =? AND uid = ?"))
+        {
+
+            $stmt->bind_param("ss",$boardName,$uid);
+            $stmt->execute();
+            $stmt->store_result();
+
+            $stmt->bind_result($board);
+
+            $stmt->fetch();
+            $stmt->free_result();
+            return $board;
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getBoard'";
     }
 }
 ?>
