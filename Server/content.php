@@ -176,8 +176,8 @@ class Content
 
     public function showLeaderboard()
     {
-        $this->getLeaderBoardArray();
         $this->showNavigation(2);
+        $this->getLeaderBoardArray();
     }
 
     public function updateBoardtoDb(){
@@ -236,49 +236,26 @@ class Content
         $tableString = "";
 
         //dummy data to be replaced by:
-        //$leaderBoard = getLeaderBoard()
+        $leaderBoardTmp = $this->db->getLeaderBoard();
+        $leaderBoard = array();
 
-        $leaderBoard[0][place]   = "rank";
-        $leaderBoard[0][uid]   = "id";
-        $leaderBoard[0][name]  = "name";
-        $leaderBoard[0][score]  = "score";
+        $this->array_sort_by_column($leaderBoardTmp, 'score');
 
-        $leaderBoard[1][rank]   = "";
-        $leaderBoard[1][uid]   = "12331231231";
-        $leaderBoard[1][name]  = "Pratzner";
-        $leaderBoard[1][score]  = "15000";
+        $leaderBoard[0]['Rank'] = ">Rank<";
+        $leaderBoard[0]['Score'] = ">Score<";
+        $leaderBoard[0]['Name'] = " >Name<";
+        $leaderBoard[0]['BoardSize'] = ">BoardType<";
 
-        $leaderBoard[2][rank]   = "";
-        $leaderBoard[2][uid]   = "12312311231";
-        $leaderBoard[2][name]  = "testheinz";
-        $leaderBoard[2][score]  = "150";
+        $index = 1;
+        foreach ($leaderBoardTmp as $row)
+        {
+            $leaderBoard[$index]['Rank'] = $index.".";
+            $leaderBoard[$index]['Score'] = $row['score'];
+            $leaderBoard[$index]['Name'] = $row['name'];
+            $leaderBoard[$index]['BoardSize'] = $row['description'];
 
-        $leaderBoard[4][rank]   = "";
-        $leaderBoard[4][uid]   = "262";
-        $leaderBoard[4][name]  = "testjosef";
-        $leaderBoard[4][score]  = "12312";
-
-        $leaderBoard[5][rank]   = "";
-        $leaderBoard[5][uid]   = "256";
-        $leaderBoard[5][name]  = "testhurz";
-        $leaderBoard[5][score]  = "802";
-
-        $leaderBoard[6][rank]   = "";
-        $leaderBoard[6][uid]   = "5262";
-        $leaderBoard[6][name]  = "testdude";
-        $leaderBoard[6][score]  = "9172319";
-
-        $leaderBoard[7][rank]   = "";
-        $leaderBoard[7][uid]   = "12353423231";
-        $leaderBoard[7][name]  = "testgash";
-        $leaderBoard[7][score]  = "51209123";
-
-        $leaderBoard[8][rank]   = "";
-        $leaderBoard[8][uid]   = "98765";
-        $leaderBoard[8][name]  = "testtrash";
-        $leaderBoard[8][score]  = "123";
-
-        $this->array_sort_by_column($leaderBoard, 'score');
+            $index++;
+        }
 
         $tableString .= "<center>";
         $tableString .= "<table style='width:50%' id='leaderTable'>";
@@ -286,8 +263,7 @@ class Content
         for($x = 0; $x < count($leaderBoard); $x++)
         {
             $tableString .= "<tr>";
-            if($x >0)
-                $leaderBoard[$x][rank] = $x . ".";
+            if($x >0){
                 foreach ($leaderBoard[$x] as $row)
                 {
                     if($x>0)
@@ -296,6 +272,13 @@ class Content
             	        $tableString .=  "<th>".$row."</th>";
                 }
                 $tableString .= "</tr>";
+                }
+            else{
+                $tableString .=  "<th>". "Rank"."</th>";
+                $tableString .=  "<th>". "Score"."</th>";
+                $tableString .=  "<th>". "Name"."</th>";
+                $tableString .=  "<th>". "BoardType"."</th>";
+                }
         }
 
         $tableString .= "</table>";
@@ -313,15 +296,13 @@ class Content
          array_multisort($sort_col, $dir, $arr);
      }
 
-	  public function testDb(){
+	  public function testDb()
+      {
+          $test = $this->db->getLeaderBoard();
 
-		  $contents = file_get_contents("../cellPresetCoordinates.json");
-		  var_dump($contents);
-		  $contents = utf8_encode($contents);
-		  var_dump($contents);
-		  $results = json_encode($contents);
-		  var_dump($results);
-	}
+          var_dump($test);
+
+	    }
 
 }
 
