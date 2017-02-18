@@ -243,7 +243,7 @@ class dataBase
 
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("SELECT score,sid FROM progress WHERE uid =?"))
+        if ($stmt = $db->prepare("SELECT score, sid FROM progress WHERE uid =?"))
         {
             $resultArr = array();
 
