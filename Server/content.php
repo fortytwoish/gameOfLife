@@ -5,8 +5,8 @@ session_start();
 class Content
 {
 	private $db;
-    private $gameDim    = 500; //Predefined for now //Should be odd always to guarantee middle
-	private $freePlayGameDim = 300;
+    private $gameDim    = 250; //Predefined for now //Should be odd always to guarantee middle
+	private $freePlayGameDim = 100;
 	private $isLoggedIn = false;
 
     public $userName = "";

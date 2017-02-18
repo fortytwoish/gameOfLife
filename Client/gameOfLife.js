@@ -28,6 +28,10 @@ var onFillStyle = "rgba(255,0,50,1.0)";
 var offFillStyle = "rgba(40,40,40,1.0)";
 var ctx;
 
+//Presets
+var presets = new Map();
+var previewCtx;
+
 //====================================================================================================
 //      Initialization
 //====================================================================================================
@@ -44,7 +48,8 @@ function generateBoard( _gameDim, isFreePlay )
                                 <input type="range" min="0" max="${SLIDER_MAX}" value="0" onchange="speedChanged(this.value)" oninput="speedChanging(this.value)" id="speedRange"></input>
                                 <label id="speed">0</label><br/>
                                 <h3>Preset</h3>
-                                <select></select>
+                                <select id="presetsSelect" onchange="presetSelected(this.value)"></select>
+                                <canvas id="previewCanvas" width="200" height="200" moz-opaque></canvas>
                                 <button>Reset</button>
                             </div>
                             <div id="flexMiddle">
@@ -66,7 +71,7 @@ function generateBoard( _gameDim, isFreePlay )
                                 <input type="button" value="randomize (debug)" onclick="randomBoard()"/><br/ >
                                 Score<br />
                                 MaxScore<br />
-                                Money<br />
+                                Drei Makk Fuffich<br />
                             </div>
                         </div>`  );
 
@@ -83,6 +88,8 @@ function generateBoard( _gameDim, isFreePlay )
 
     var c = document.getElementById( "myCanvas" );
     ctx = c.getContext( "2d" );
+
+    previewCtx = document.getElementById( "previewCanvas" ).getContext( "2d" );
 
     c.addEventListener( "mousedown", function ( evt )
     {
@@ -530,8 +537,42 @@ function insertPreset( $presetName )
 
 function setPresets( _jsonContent )
 {
-
     json = JSON.parse( _jsonContent );
 
-    console.log( shapes );
+    var shapes = json["shapes"];
+
+    var select = document.getElementById( "presetsSelect" );
+
+    for ( var shape in shapes )
+    {
+        var opt = document.createElement( 'option' );
+        opt.innerHTML = shape + "\t(" + shapes[shape]["count"] + ")";
+        select.appendChild( opt );
+
+        presets.set( shape, shapes[shape]["coordinates"] );
+    }
+}
+
+function presetSelected(name)
+{
+    var basename = name.substring( 0, name.indexOf( "(" ) - 1 );
+
+    var preset = presets.get( basename );
+
+    previewCtx.clearRect( 0, 0, previewCtx.width, previewCtx.height );
+
+    for(var index in preset)
+    {
+        var point = preset[index];
+
+        var x = parseInt(point.substring( 1, point.indexOf( ":" )), 10);
+        var y = parseInt( point.substring( point.indexOf( ":" ) + 1, point.length - 1 ), 10 );
+
+        previewCtx.fillStyle = "rgba(255,0,0,1.0)";
+        previewCtx.fillRect( 100 + x, 100 + y, 1, 1 );
+
+        board[gameDim / 2 + x][gameDim / 2 + y] = true;
+    }
+
+    display();
 }
