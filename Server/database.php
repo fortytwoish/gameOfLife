@@ -125,11 +125,11 @@ class dataBase
         return "Error in 'getCurrentUserID'";
     }
 
-    public function getSidByDimension($dimension)
+    public function getSidDescriptionByDimension($dimension)
     {
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("SELECT sid FROM size WHERE dimension=?"))
+        if ($stmt = $db->prepare("SELECT description FROM size WHERE dimension=?"))
         {
             $stmt->bind_param("i",$dimension);
             $stmt->execute();
@@ -259,6 +259,85 @@ class dataBase
         }
         else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
         return "Error in 'getUserProgress'";
+    }
+
+    public function getSizes(){
+
+        $uid = $this->getCurrentUserID();
+
+        $db = $this->linkDB();
+
+        if ($stmt = $db->prepare("select max(progress.score), size.description from progress, size WHERE progress.uid = ? AND progress.sid = size.sid"))
+        {
+            $resultArr = array();
+
+            $stmt->bind_param("s",$uid);
+            $stmt->execute();
+            $stmt->store_result();
+
+            $stmt->bind_result($score,$description);
+
+            while ($stmt->fetch())
+            {
+                array_push($resultArr, $score, $description);
+            }
+
+            $stmt->free_result();
+            return $resultArr;
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getUserProgress'";
+    }
+
+    public function getBoards(){
+
+        $uid = $this->getCurrentUserID();
+
+        $db = $this->linkDB();
+
+        if ($stmt = $db->prepare("SELECT boardname FROM board WHERE uid =?"))
+        {
+            $resultArr = array();
+
+            $stmt->bind_param("s",$uid);
+            $stmt->execute();
+            $stmt->store_result();
+
+            $stmt->bind_result($score,$sid);
+
+            while ($stmt->fetch())
+            {
+                array_push($resultArr, $score, $sid);
+            }
+
+            $stmt->free_result();
+            return $resultArr;
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getUserProgress'";
+    }
+
+    public function getBoard($boardName){
+
+        $uid = $this->getCurrentUserID();
+
+        $db = $this->linkDB();
+
+        if ($stmt = $db->prepare("SELECT board FROM board WHERE boardname =? AND uid = ?"))
+        {
+
+            $stmt->bind_param("ss",$boardName,$uid);
+            $stmt->execute();
+            $stmt->store_result();
+
+            $stmt->bind_result($board);
+
+            $stmt->fetch();
+            $stmt->free_result();
+            return $board;
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getBoard'";
     }
 }
 ?>
