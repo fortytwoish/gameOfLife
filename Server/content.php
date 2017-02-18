@@ -4,14 +4,20 @@ session_start();
 
 class Content
 {
+    //====================================================================================================
+    //      Variables
+    //====================================================================================================
 	private $db;
-    private $gameDim    = 250; //Predefined for now //Should be odd always to guarantee middle
-	private $freePlayGameDim = 100;
-	private $isLoggedIn = false;
+    private $gameDim;
+	private $freePlayGameDim = 50;
+	private $isLoggedIn      = false;
 
-    public $userName = "";
-
+    public $userName     = null;
     public $currentBoard = array();
+
+    //====================================================================================================
+    //      Constructor
+    //====================================================================================================
 
 	public function __construct()
 	{
@@ -24,30 +30,36 @@ class Content
         }
     }
 
+    //====================================================================================================
+    //      Page Navigation
+    //====================================================================================================
+
 	public function showNavigation($selected)
 	{
        //Load CSS and JS files
        echo '<link rel="stylesheet" href="../Client/gameOfLife.css" type="text/css">';
-       echo '<script src="../Client/gameOfLife.js"></script>';
+       echo '<script src="../Client/gameOfLife_Logic.js"></script>';
+       echo '<script src="../Client/gameOfLife_View.js"></script>';
        echo '<script src="../Client/uploadGame.js"></script>';
 
 		$loginText = $this->userName == null
 				   ? 'Login'
 				   : 'Profile of '.$this->userName;
 
+        $playText  = $this->userName == null
+				   ? 'Free Play'
+				   : 'Play';
+
 		echo '	<nav>
 					<ul>
 						<li>
-							<a href="?do=showAccount"     class="'.($selected == 0 ? "selectedNavItem" : "deselectedNavItem").'">'.$loginText.'</a>
+							<a href="?do=showAccount"       class="'.($selected == 0 ? "selectedNavItem" : "deselectedNavItem").'">'.$loginText.'</a>
 						</li>
 						<li>
-							<a href="?do=showGame"        class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">Play</a>
+							<a href="?do=showGameSelection" class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">'.$playText.'</a>
 						</li>
 						<li>
-							<a href="?do=freePlay"        class="'.($selected == 1 ? "selectedNavItem" : "deselectedNavItem").'">FreePlay</a>
-						</li>
-						<li>
-							<a href="?do=showLeaderboard" class="'.($selected == 2 ? "selectedNavItem" : "deselectedNavItem").'">Leaderboard</a>
+							<a href="?do=showLeaderboard"   class="'.($selected == 2 ? "selectedNavItem" : "deselectedNavItem").'">Leaderboard</a>
 						</li>
 					</ul>
 				</nav>';
@@ -84,11 +96,11 @@ class Content
                         <td><b>Password</b></td>
                         <td><input type="password" name="password" value="'.$password.'"/> <span class="loginError">'.$passwordErr.'</span></td>
                     </tr>
-                    <tr>
-                        <td><input type="submit" name="accountAction" value="Login"/></td>
-                        <td><input type="submit" name="accountAction" value="Create"/></td>
-                    </tr>
                 </table>
+                <center>
+                    <input type="submit" name="accountAction" value="Login"/>
+                    <input type="submit" name="accountAction" value="Create"/>
+                </center>
                 <input type="hidden" name="do" value="accountAction"/>
               </form>';
 	}
@@ -102,6 +114,70 @@ class Content
                 <p>showing account of user: '.$this->userName.'</p>
               </form>';
     }
+
+    public function showFreePlay()
+	{
+		$contents = file_get_contents("../cellPresetCoordinates.json");
+		$contents = utf8_encode($contents);
+		$result = json_encode($contents);
+		$this->showNavigation(3);
+
+		echo '<script type="text/javascript">
+		        generateBoard('.$this->freePlayGameDim.');
+				setPresets('.$result.');
+			  </script>';
+
+	}
+
+    public function showGameSelection()
+    {
+        $this->showNavigation(1);
+
+        if($this->userName == null)
+        { //Free Play - allow all sizes
+            echo '  <b>Select a Board Size:</b>
+                    <form action="welcome.php" method="POST">
+                        <select name="boardSize">
+                            <option value="0">XS (15x15)</option>
+                            <option value="1">S  (50x50)</option>
+                            <option value="2">M  (100x100)</option>
+                            <option value="3">L  (200x200)</option>
+                            <option value="4">XL (500x500)</option>
+                        </select>
+
+                        <input type="submit" value="Play"/>
+                        <input type="hidden" name="do" value="showGame"/>
+                    </form>';
+        }
+    }
+
+	public function showGame($boardSize)
+	{
+        $this->gameDim = $boardSize;
+
+		$this->showNavigation(1);
+
+		echo '<script type="text/javascript">
+		        generateBoard('.$this->gameDim.', '.($this->userName == null).');
+			  </script>';
+
+		echo '<form action="welcome.php" method="POST">
+                <table>
+                    <tr>
+                        <td><input type="submit" name="testDb" value="testDB"/></td>
+                    </tr>
+                </table>
+                <input type="hidden" name="do" value="testDb"/>
+              </form>';
+    }
+
+    //====================================================================================================
+    //      Functions
+    //====================================================================================================
+
+    //--------------------------
+    //  Account Page
+    //--------------------------
 
     private function setUser($username)
     {
@@ -142,43 +218,9 @@ class Content
         $this->showWelcome();
     }
 
-	public function showFreePlay()
-	{
-		$contents = file_get_contents("../cellPresetCoordinates.json");
-		$contents = utf8_encode($contents);
-		$result = json_encode($contents);
-		$this->showNavigation(3);
-
-		echo '<script type="text/javascript">
-		        generateBoard('.$this->freePlayGameDim.');
-				setPresets('.$result.');
-			  </script>';
-
-	}
-
-	public function showGame()
-	{
-		$this->showNavigation(1);
-
-		echo '<script type="text/javascript">
-		        generateBoard('.$this->gameDim.');
-			  </script>';
-
-		echo '<form action="welcome.php" method="POST">
-                <table>
-                    <tr>
-                        <td><input type="submit" name="testDb" value="testDB"/></td>
-                    </tr>
-                </table>
-                <input type="hidden" name="do" value="testDb"/>
-              </form>';
-    }
-
-    public function showLeaderboard()
-    {
-        $this->getLeaderBoardArray();
-        $this->showNavigation(2);
-    }
+    //--------------------------
+    //  Game Page
+    //--------------------------
 
     public function updateBoardtoDb(){
 
@@ -231,7 +273,17 @@ class Content
         echo 'Success? : ' . $tmp;
     }
 
-     public function getLeaderBoardArray()
+    //--------------------------
+    //  Leaderboard Page
+    //--------------------------
+
+    public function showLeaderboard()
+    {
+        $this->showNavigation(2);
+        $this->getLeaderBoardArray();
+    }
+
+    public function getLeaderBoardArray()
      {
         $tableString = "";
 
@@ -304,23 +356,26 @@ class Content
         echo $tableString;
      }
 
-     function array_sort_by_column(&$arr, $col, $dir = SORT_DESC) {
-         $sort_col = array();
-         foreach ($arr as $key=> $row) {
-             $sort_col[$key] = $row[$col];
-         }
+    //====================================================================================================
+    //      Helper functions
+    //====================================================================================================
+    function array_sort_by_column(&$arr, $col, $dir = SORT_DESC) {
+        $sort_col = array();
+        foreach ($arr as $key=> $row) {
+            $sort_col[$key] = $row[$col];
+        }
 
-         array_multisort($sort_col, $dir, $arr);
-     }
+        array_multisort($sort_col, $dir, $arr);
+    }
 
-	  public function testDb(){
+	public function testDb(){
 
-		  $contents = file_get_contents("../cellPresetCoordinates.json");
-		  var_dump($contents);
-		  $contents = utf8_encode($contents);
-		  var_dump($contents);
-		  $results = json_encode($contents);
-		  var_dump($results);
+        $contents = file_get_contents("../cellPresetCoordinates.json");
+        var_dump($contents);
+        $contents = utf8_encode($contents);
+        var_dump($contents);
+        $results = json_encode($contents);
+        var_dump($results);
 	}
 
 }

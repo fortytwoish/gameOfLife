@@ -125,6 +125,12 @@ table tr, table td
     border: 1px solid black;
 }
 
+table td:last-child
+{
+    width: 100%;
+    text-align: center;
+}
+
 #leaderTable tr:nth-child(even){background-color: #f2f2f2;}
 
 #leaderTable tr:hover {background-color: #ddd;}

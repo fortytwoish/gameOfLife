@@ -30,8 +30,9 @@
     <Folder Include="Server\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Client\gameOfLife_View.js" />
     <Content Include="Client\gameOfLife.css" />
-    <Content Include="Client\gameOfLife.js" />
+    <Content Include="Client\gameOfLife_Logic.js" />
     <Content Include="Client\uploadGame.js" />
   </ItemGroup>
 </Project>

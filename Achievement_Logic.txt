@@ -31,11 +31,11 @@ TODO/TBD:
 
 
 		FieldSizes:			DIM    		MaxScore
-(1.)	1_extraSmall <-> 	 50	  <->		5%
-(2.)	2_small		 <-> 	100	  <->	   10%
-(3.)	3_medium	 <-> 	200	  <->	   20%
-(4.)	4_large		 <-> 	500	  <->	   50%
-(5.)	5_extraLarge <->   1000	  <->	  100%			
+(1.)	1_extraSmall <-> 	 15	  <->		5%
+(2.)	2_small		 <-> 	 50	  <->	   10%
+(3.)	3_medium	 <-> 	100	  <->	   20%
+(4.)	4_large		 <-> 	200	  <->	   50%
+(5.)	5_extraLarge <->    500	  <->	  100%			
 
 >>Shape Definitions:<<
 [1.]Glider
