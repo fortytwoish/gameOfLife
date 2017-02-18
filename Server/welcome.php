@@ -4,18 +4,16 @@
     </HEAD>
     <BODY>
         <?php
-/*        	include 'config.php';
-			$config = new Config(); */
-
 			include 'content.php';
 			$content = new Content();
 
 
 			$errors = array();
-			$values = array("do" => "",
-                            "username" => "",
-                            "password" => "",
-                            "accountAction" => "");
+			$values = array("do"            => "",
+                            "username"      => "",
+                            "password"      => "",
+                            "accountAction" => "",
+                            "boardSize"     => "");
 
 //===========================================================================================//
 
@@ -52,11 +50,32 @@
                         $content->showAccount();
                     }
 					break;
-				case "freePlay": 
-					$content->showFreePlay();
+                case "showGameSelection":
+					$content->showGameSelection();
 					break;
 				case "showGame":
-					$content->showGame();
+                    switch($values["boardSize"])
+                    {
+                        case "0":
+                            $content->showGame(15);
+                            break;
+                        case "1":
+                            $content->showGame(50);
+                            break;
+                        case "2":
+                            $content->showGame(100);
+                            break;
+                        case "3":
+                            $content->showGame(200);
+                            break;
+                        case "4":
+                            $content->showGame(500);
+                            break;
+                        default:
+                            echo 'Invalid boardsize.';
+                            $content->showGameSelection();
+                            break;
+                    }
 					break;
 				case "showLeaderboard":
 					$content->showLeaderboard();

@@ -1,4 +1,9 @@
-﻿nav
+﻿body
+{
+    background: #EEE;
+}
+
+nav
 {
     background-color: #AAA;
 }
@@ -45,31 +50,11 @@ p
     margin-bottom: 10px;
 }
 
-.deadGameCell
-{
-    padding: 0;
-    box-sizing: border-box;
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    //border: 0.1px solid white;
-    background-color: #DDD;
-}
-
-.aliveGameCell
-{
-    padding: 0;
-    box-sizing: border-box;
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    //border: 0.1px solid white;
-    background-color: #F00;
-}
-
 canvas
 {
     border: 1px solid black;
+    margin-left: 50px;
+    margin-right: 50px;
 }
 
 #leaderTable {
@@ -81,6 +66,69 @@ canvas
 #leaderTable td, #leaderTable th {
     border: 1px solid #ddd;
     padding: 8px;
+}
+
+#flexContainer
+{
+    display: -webkit-flex;
+    display: flex;
+    padding: 20px;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+#flexLeft
+{
+    width: 250px;
+    flex: 0 0 auto;
+}
+
+#flexMiddle
+{
+    flex:1 1 auto;
+    margin: auto;
+}
+
+#flexRight
+{
+    flex:0 0 auto;
+    width: 250px;
+}
+
+#flexLeft input, #flexLeft select
+{
+    width: inherit;
+    margin: 5px;
+}
+
+#flexLeft button
+{
+    width: auto;
+    margin-top: 20px;
+}
+
+table
+{
+    border-collapse: collapse;
+    margin: 5px;
+}
+
+table span
+{
+    background-color: #EEE;
+    margin: 1px;
+}
+
+table tr, table td
+{
+    border: 1px solid black;
+}
+
+table td:last-child
+{
+    width: 100%;
+    text-align: center;
 }
 
 #leaderTable tr:nth-child(even){background-color: #f2f2f2;}
