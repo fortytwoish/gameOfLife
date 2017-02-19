@@ -13,10 +13,12 @@ class dataBase
     private $linkName = "mysqlpb.pb.bib.de";
     private $user     = "pbs2h15amu";
     private $pw       = "hZtNe7Pe";
+
     public function __construct($_content)
     {
         $this->Content = $_content;
     }
+
     public function selectFromDB($sql)
     {
         $db     = $this->linkDB();
@@ -29,6 +31,7 @@ class dataBase
         }
         return $result;
     }
+
     public function insertIntoDB($sql)
     {
         $db     = $this->linkDB();
@@ -37,6 +40,7 @@ class dataBase
     	$db->close();
         return $errors;
     }
+
     public function linkDB()
     {
         $db = new \mysqli($this->linkName, $this->user, $this->pw);
@@ -47,6 +51,7 @@ class dataBase
         mysqli_select_db($db, $this->dbName);
         return $db;
     }
+
     public function createGUID()
     {
         $data = openssl_random_pseudo_bytes(16);
@@ -54,6 +59,7 @@ class dataBase
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
+
     // WORKING
     public function createUser($name, $pw)
     {
@@ -85,6 +91,7 @@ class dataBase
             return true;
         }
     }
+
     // WORKING
     public function loginUser($name, $pw)
     {
@@ -135,6 +142,27 @@ class dataBase
         return "Error in 'getCurrentUserID'";
     }
 
+    public function getSidByDimension($dimension)
+    {
+        $db = $this->linkDB();
+
+        if ($stmt = $db->prepare("SELECT sid FROM size WHERE dimension=?"))
+        {
+            $stmt->bind_param("i",$dimension);
+            $stmt->execute();
+            $stmt->store_result();
+            if($stmt->num_rows == 1)
+            {
+                $stmt->bind_result($sid);
+                $stmt->fetch();
+                $stmt->free_result();
+                return $sid;
+            }
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return null;
+    }
+
     public function getSidDescriptionByDimension($dimension)
     {
         $db = $this->linkDB();
@@ -156,28 +184,47 @@ class dataBase
         return null;
     }
 
-    public function addCurrentUserBoard($board,$boardName,$boardDim,$score)
+    public function addCurrentUserBoard($board,$boardName,$boardDim,$money)
     {
         $bid    = $this->createGUID();
         $db     = $this->linkDB();
         $userId = $this->getCurrentUserID();
         $sid    = $this->getSidByDimension($boardDim);
 
-        var_dump($bid, $userId, $sid);
-
-        echo "<br><br>started to add User Board";
-
         if($stmt = $db->prepare("INSERT INTO board VALUES (?,?,?,?,?,?)")){
 
-            $stmt->bind_param("sssssi",$bid, $board, $boardName, $sid, $userId,$score);
+            $stmt->bind_param("sssssi",$bid, $board, $boardName, $sid, $userId,$money);
             ($stmt->execute());
+
+            if(count($stmt->error_list) > 0)
+            {
+                return false;
+            }
 
             return true;
         }
-        else { var_dump($db->error); return false; }
+        else { return false; }
     }
 
-    //TODO: ENFORCE UNIQUE NAMES PER PLAYER
+    public function updateUserBoard($boardName,$board,$money)
+    {
+        $db      = $this->linkDB();
+
+        if($stmt = $db->prepare("UPDATE board SET boardstate=?, money=? WHERE boardname=?")){
+
+            $stmt->bind_param("sss",$board,$money,$boardName);
+            ($stmt->execute());
+
+            if(count($stmt->error_list) > 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        else { return false; }
+    }
+
     public function getBoardID($boardName){
 
         $uid    = $this->getCurrentUserID($_SESSION['username']);
@@ -199,8 +246,6 @@ class dataBase
         else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
         return "Error in 'getBoardID'";
     }
-
-
 
     //TODO: get $bid properly
     public function setUserProgress($username="",$board,$boardDim,$currentScore)
@@ -409,10 +454,10 @@ class dataBase
 
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("SELECT board FROM board WHERE boardname =? AND uid = ?"))
+        if ($stmt = $db->prepare("SELECT boardstate FROM board WHERE boardname=?"))
         {
 
-            $stmt->bind_param("ss",$boardName,$uid);
+            $stmt->bind_param("s",$boardName);
             $stmt->execute();
             $stmt->store_result();
 

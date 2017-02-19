@@ -5,6 +5,7 @@
 //--------------------------
 //  Board
 //--------------------------
+var boardName;
 var gameDim;
 var gameDimSq;
 var board;
@@ -37,16 +38,29 @@ var isInTickTimeout;
 //--------------------------
 var score    = 0;
 var maxScore = 0;
+var money    = 42;
+var has20PercentAchievement = false;
+var has30PercentAchievement = false;
 
 //====================================================================================================
 //      Initialization
 //====================================================================================================
 
-function generateBoard( _gameDim, isFreePlay )
+function generateBoard( _gameDim, isFreePlay, _boardName, isNewBoard )
 {
+    if ( isNewBoard && window.localStorage.getItem( "hasViewedNewBoardTutorial" ) == null )
+    {
+        displayNotification( "You have created a new board!<br>On the right side, your current money is shown. You can spend it to set cells and reset the board to get your money back.<br>"
+                            + "Your maximum money increases when you get Achievements (max Score > 20% or 30%, per Size).<br><br>"
+                            + "REMEMBER TO SAVE YOUR BOARD BEFORE YOU LEAVE! (Button in the upper left)",
+                            15000 );
+        window.localStorage.setItem( "hasViewedNewBoardTutorial", "x" );
+    }
+
     gameDim = _gameDim;
     gameDimSq = gameDim * gameDim;
     board = createArray( gameDim, gameDim );
+    boardName = _boardName;
 
     for ( var i = 0; i < gameDim; i++ )
         for ( var j = 0; j < gameDim; j++ )
@@ -79,6 +93,7 @@ function generateBoard( _gameDim, isFreePlay )
                                 </center>
                             </div>
                             <div id="flexRight">
+                                <h2>${boardName}</h2>
                                 <h3>Performance</h3>
                                 <table>
                                     <tr>
@@ -155,6 +170,34 @@ function randomBoard()
             }
         }
     }
+}
+
+function setBoard(loadedBoard)
+{
+
+    if ( loadedBoard == "" )
+    {
+        return;
+    }
+
+    var index = 0;
+
+    for ( var y = 0; y < gameDim; y++ )
+        for ( var x = 0; x < gameDim; x++ )
+        {
+            if ( loadedBoard[index] == "0" )
+            {
+                board[x][y] = false;
+            }
+            else
+            {
+                board[x][y] = true;
+            }
+
+            index++;
+        }
+
+    display();
 }
 
 //====================================================================================================
@@ -262,6 +305,22 @@ function tick()
 
         }
 
+    if ( score > maxScore )
+    {
+        maxScore = score;
+
+        if(!has20PercentAchievement && maxScore > gameDim * gameDim * 0.2)
+        {
+            has20PercentAchievement = true;
+            updateAchievements();
+        }
+        if ( !has30PercentAchievement && maxScore > gameDim * gameDim * 0.3 )
+        {
+            has30PercentAchievement = true;
+            updateAchievements();
+        }
+    }
+
     toBeRevived.forEach( function ( cell )
     {
         board[cell.x][cell.y] = true;
@@ -356,4 +415,21 @@ function setPresets( loadedPresets )
         
         presets.set( shape, shapes[shape]);
     }
+}
+
+function setAchievements( _has20PercentAchievement, _has30PercentAchievement )
+{
+    has20PercentAchievement = _has20PercentAchievement;
+    has30PercentAchievement = _has30PercentAchievement;
+}
+
+function updateAchievements()
+{
+    var http = new XMLHttpRequest();
+    http.open("POST", "./welcome.php", true);
+    http.setRequestHeader( "Content-type", "application/x-www-form-urlencoded" );
+
+    var params = "do=updateAchievements&boardSize=" + gameDim + "&20Percent=" + has20PercentAchievement + "&30Percent=" + has30PercentAchievement;
+
+    http.send( params );
 }

@@ -254,7 +254,11 @@ function canvasClicked(evt)
 function previewCanvasClicked()
 {
     //Set Preset
-    var presetSelection = document.getElementById("presetsSelect");
+    var presetSelection = document.getElementById( "presetsSelect" );
+    if ( presetSelection.value == "None" )
+    {
+        return;
+    }
     var basename        = presetSelection.value.substring( 0, presetSelection.value.indexOf( "(" ) - 1 );
     activePreset        = presets.get( basename );
 

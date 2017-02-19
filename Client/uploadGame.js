@@ -1,5 +1,11 @@
-﻿function fuckload2tmp()
+﻿function uploadBoard()
 {
+    //send amount of rows
+    var http = new XMLHttpRequest();
+    http.open( "POST", "./Upload.php", true );
+    http.setRequestHeader( "Content-type", "application/x-www-form-urlencoded" );
+    http.send( "!" + gameDim + ";" + boardName + ";" + money );
+
     var strRow = "";
     for ( var y = 0; y < gameDim; y++ )
     {
@@ -9,7 +15,11 @@
             else strRow += "1";
         }
 
-        sendArrayBuffer(y + "=" + strRow );
+        var paddedY = "000".substring( 0, 3 - ( "" + y ).length ) + y;
+
+        console.log( paddedY );
+
+        sendArrayBuffer( paddedY + "=" + strRow );
         strRow = "";
     }
 }
@@ -17,8 +27,8 @@
 function sendArrayBuffer( $data )
 {
     var http = new XMLHttpRequest();
-    http.open( "POST", "http://pbs2h15ash.webpb.pb.bib.de/GameOfLife/Server/Upload.php", true );
-   
+    http.open( "POST", "./Upload.php", true );
+
     //Send the proper header information along with the request
     http.setRequestHeader( "Content-type", "application/x-www-form-urlencoded" );
    

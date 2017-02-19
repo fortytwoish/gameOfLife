@@ -7,7 +7,7 @@ class Content
     //====================================================================================================
     //      Variables
     //====================================================================================================
-	private $db;
+	public $db;
     private $gameDim;
 	private $isLoggedIn = false;
 
@@ -203,7 +203,7 @@ class Content
 
     }
 
-    public function showGameSelection()
+    public function showGameSelection($error)
     {
 
         $this->showNavigation(1);
@@ -258,7 +258,7 @@ class Content
                                     <b>Board Name:</b>
                                 </td>
                                 <td>
-                                    <input type="text" name="newBoardName"/>
+                                    <input type="text" name="newBoardName" placeholder="'.$error.'"/>
                                 </td>
                             </tr>
                         </table>
@@ -271,7 +271,7 @@ class Content
                         <select name="boardName">
                             '.$existingBoards.'
                         </select>
-                        <input type="submit" name="boardSelectOrCreate" value="Play"/>
+                        <input type="submit" name="boardSelectOrCreate" value="Select"/>
 
                         <br/>
 
@@ -280,7 +280,7 @@ class Content
         }
     }
 
-	public function showGame($boardSize)
+	public function showGame($boardSize, $boardName, $loadedBoard, $isNewBoard)
 	{
         $this->gameDim = $boardSize;
 
@@ -288,12 +288,12 @@ class Content
 
         $result = file_get_contents("../cellPresetCoordinates_lowToHigh.json");
 
+        $unlockedAchievements  = $this->getUnlockedAchievements();
 
         if(!$isFreePlay) //If not in Free Play mode, filter by which sizes have been unlocked by the user
         {
             // 1. Get Unlocked Preset indices from the achievements
             $i                     = 0;
-            $unlockedAchievements  = $this->getUnlockedAchievements();
             $cellpresets           = json_decode($result)->shapes;
             $unlockedPresetIndices = array();
 
@@ -321,24 +321,63 @@ class Content
             }
 
             $result = json_encode($unlockedPresets);
-            var_dump($result);
         }
 
 		$this->showNavigation(1);
 
-		echo '<script type="text/javascript">
-		        generateBoard('.$this->gameDim.', '.($isFreePlay ? "true" : "false").');
-                setPresets('.$result.');
-			  </script>';
+        echo '<button onclick="uploadBoard()">Save Board</button>';
 
-		echo '<form action="welcome.php" method="POST">
-                <table>
-                    <tr>
-                        <td><input type="submit" name="testDb" value="testDB"/></td>
-                    </tr>
-                </table>
-                <input type="hidden" name="do" value="testDb"/>
-              </form>';
+        //Check whether the maxScore% achievements have already been unlocked
+        $achievements = "";
+
+        switch($boardSize)
+        {
+            case "15":
+                {
+                    $achievements = (isset($unlockedAchievements[0])? "true" : "false")
+                                  . ", "
+                                  . (isset($unlockedAchievements[6])? "true" : "false");
+                }
+                break;
+            case "50":
+                {
+                    $achievements = (isset($unlockedAchievements[1])? "true" : "false")
+                                  . ", "
+                                  . (isset($unlockedAchievements[7])? "true" : "false");
+                }
+                break;
+            case "100":
+                {
+                    $achievements = (isset($unlockedAchievements[2])? "true" : "false")
+                                  . ", "
+                                  . (isset($unlockedAchievements[8])? "true" : "false");
+                }
+                break;
+            case "200":
+                {
+                    $achievements = (isset($unlockedAchievements[3])? "true" : "false")
+                                  . ", "
+                                  . (isset($unlockedAchievements[9])? "true" : "false");
+                }
+                break;
+            case "500":
+                {
+                    $achievements = (isset($unlockedAchievements[4])? "true" : "false")
+                                  . ", "
+                                  . (isset($unlockedAchievements[10])? "true" : "false");
+                }
+                break;
+            default:
+                $achievements = "0, 0";
+                break;
+        }
+
+		echo '<script type="text/javascript">
+		        generateBoard('.$this->gameDim.', '.($isFreePlay ? "true" : "false").', "'.$boardName.'", '.($isNewBoard ? "true" : "false").');
+                setPresets('.$result.');
+                setAchievements('.$achievements.');
+                setBoard("'.$loadedBoard.'");
+			  </script>';
     }
 
     //====================================================================================================
@@ -438,7 +477,7 @@ class Content
         }
 
         //SET VALUES
-        $tmp = $this->db->addCurrentUserBoard($arr,"tollesBoard",50,$score);
+        //$tmp = $this->db->addCurrentUserBoard($arr,"tollesBoard",50,$score);
         echo 'Success? : ' . $tmp;
     }
 
@@ -518,14 +557,10 @@ class Content
         array_multisort($sort_col, $dir, $arr);
     }
 
-	public function testDb(){
+	public function testDb()
+    {
+        $this->db->updateUserBoard();
 
-        $contents = file_get_contents("../cellPresetCoordinates.json");
-        var_dump($contents);
-        $contents = utf8_encode($contents);
-        var_dump($contents);
-        $results = json_encode($contents);
-        var_dump($results);
 	}
 
     public function getUnlockedAchievements()
@@ -584,6 +619,18 @@ class Content
         }
     }
 
+    public function getDimFromSizeDescription($sizeDescr)
+    {
+        switch($sizeDescr)
+        {
+            case "XS": return 15;
+            case "S ":  return 50;
+            case "M ":  return 100;
+            case "L ":  return 200;
+            case "XL": return 500;
+            default:   return -1;
+        }
+    }
 }
 
 
