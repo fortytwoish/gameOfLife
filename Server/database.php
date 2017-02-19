@@ -77,11 +77,13 @@ class dataBase
             var_dump($db->error);
         }
 
-        if($stmt->error_list >0){
+        if(count($stmt->error_list) > 0){
             echo "This Username is already in use! Please choose another one";
+            return false;
         }
         else{
             $this->setUserProgress($name,"",15,0);
+            return true;
         }
     }
     // WORKING
