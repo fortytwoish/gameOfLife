@@ -347,6 +347,24 @@ class dataBase
         return "Error in 'getUserProgress'";
     }
 
+    public function updateAchievements($achievementString)
+    {
+        $uid = $this->getCurrentUserID();
+
+        $db = $this->linkDB();
+
+        if($stmt = $db->prepare("UPDATE user SET achievements=? WHERE uid=?"))
+        {
+            $stmt->bind_param("ss",$achievementString,$uid);
+            ($stmt->execute());
+            return true;
+        }
+        else{
+            echo "achievement Update FAILED";
+            return false;
+        }
+    }
+
     public function getSizes(){
 
         $uid = $this->getCurrentUserID();
