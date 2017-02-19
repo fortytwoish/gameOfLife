@@ -78,7 +78,6 @@ class dataBase
         }
 
         if(count($stmt->error_list) > 0){
-            echo "This Username is already in use! Please choose another one";
             return false;
         }
         else{
