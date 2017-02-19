@@ -147,7 +147,7 @@ class Content
     public function showGameSelection()
     {
 
-        var_dump($this->parseAchievementString());
+        var_dump($this->getUnlockedAchievements());
 
 
         $this->showNavigation(1);
@@ -157,11 +157,11 @@ class Content
             echo '  <b>Select a Board Size:</b>
                     <form action="welcome.php" method="POST">
                         <select name="boardSize">
-                            <option value="0">XS (15x15)</option>
-                            <option value="1">S  (50x50)</option>
-                            <option value="2">M  (100x100)</option>
-                            <option value="3">L  (200x200)</option>
-                            <option value="4">XL (500x500)</option>
+                            <option value="XS">XS (15x15)</option>
+                            <option value="S ">S  (50x50)</option>
+                            <option value="M ">M  (100x100)</option>
+                            <option value="L ">L  (200x200)</option>
+                            <option value="XL">XL (500x500)</option>
                         </select>
 
                         <input type="submit" value="Play"/>
@@ -230,26 +230,49 @@ class Content
 
         $isFreePlay = ($this->userName == null);
 
-        if($isFreePlay)
-        {
-            $contents = file_get_contents("../cellPresetCoordinates.json");
-            $contents = utf8_encode($contents);
-            $result   = json_encode($contents);
-        }
-        else
-        {
-            echo "BEWEIS";
-            var_dump($this->parseAchievementString());
-            echo($this->parseAchievementString());
-            $result = "";
+        $result = file_get_contents("../cellPresetCoordinates_lowToHigh.json");
 
+
+        if(!$isFreePlay) //If not in Free Play mode, filter by which sizes have been unlocked by the user
+        {
+            // 1. Get Unlocked Preset indices from the achievements
+            $i                     = 0;
+            $unlockedAchievements  = $this->getUnlockedAchievements();
+            $cellpresets           = json_decode($result)->shapes;
+            $unlockedPresetIndices = array();
+
+            for($i = 12; $i < sizeof(get_object_vars($cellpresets)); $i++)
+            {
+                if(isset($unlockedAchievements[$i]))
+                {
+                    array_push($unlockedPresetIndices, $i - 12);
+                }
+            }
+
+
+            // 2. Get Unlocked Presets from their indices
+            $i               = 0;
+            $unlockedPresets = array();
+
+            foreach($cellpresets as $key => $value)
+            {
+                if(array_search($i, $unlockedPresetIndices) > -1)
+                {
+                    $unlockedPresets["shapes"][$key] = $value;
+                }
+
+                $i++;
+            }
+
+            $result = json_encode($unlockedPresets);
+            var_dump($result);
         }
 
 		$this->showNavigation(1);
 
 		echo '<script type="text/javascript">
-		        generateBoard('.$this->gameDim.', '.$isFreePlay.');
-                '.($isFreePlay?'setPresets('.$result.');':'').'
+		        generateBoard('.$this->gameDim.', '.($isFreePlay ? "true" : "false").');
+                setPresets('.$result.');
 			  </script>';
 
 		echo '<form action="welcome.php" method="POST">
@@ -469,7 +492,7 @@ class Content
         var_dump($results);
 	}
 
-    public function parseAchievementString()
+    public function getUnlockedAchievements()
     {
         $achievementString = $this->db->getAchievements();
 
@@ -490,27 +513,36 @@ class Content
         return $unlockedAchievements;
     }
 
+    //====================================================================================================
+    //      Resource Dictionaries
+    //====================================================================================================
+
     private function achievementIndexToDescription($ind)
     {
         switch($ind)
         {
-            case 0: return "XS: max score of 20% reached.";
-            case 1: return "S : max score of 20% reached.";
-            case 2: return "M : max score of 20% reached.";
-            case 3: return "L : max score of 20% reached.";
-            case 4: return "XL: max score of 20% reached.";
+            case 0:  return "XS: max score of 20% reached.";
+            case 1:  return "S : max score of 20% reached.";
+            case 2:  return "M : max score of 20% reached.";
+            case 3:  return "L : max score of 20% reached.";
+            case 4:  return "XL: max score of 20% reached.";
+            case 5:  return "All max scores of 20% reached.";
 
-            case 5: return "XS: max score of 30% reached.";
-            case 6: return "S : max score of 30% reached.";
-            case 7: return "M : max score of 30% reached.";
-            case 8: return "L : max score of 30% reached.";
-            case 9: return "XL: max score of 30% reached.";
+            case 6:  return "XS: max score of 30% reached.";
+            case 7:  return "S : max score of 30% reached.";
+            case 8:  return "M : max score of 30% reached.";
+            case 9:  return "L : max score of 30% reached.";
+            case 10: return "XL: max score of 30% reached.";
+            case 11: return "All max scores of 30% reached.";
 
-            case 10: return "Unlocked preset 1.";
-            case 11: return "Unlocked preset 2.";
-            case 12: return "Unlocked preset 3.";
-            case 13: return "Unlocked preset 4.";
-            case 14: return "Unlocked preset 5.";
+            case 12: return "Unlocked preset 0.";
+            case 13: return "Unlocked preset 1.";
+            case 14: return "Unlocked preset 2.";
+            case 15: return "Unlocked preset 3.";
+            case 16: return "Unlocked preset 4.";
+            case 17: return "Unlocked preset 5.";
+            case 18: return "Unlocked preset 6.";
+            case 19: return "Unlocked preset 7.";
 
             default: return "Unknown Achievement";
         }

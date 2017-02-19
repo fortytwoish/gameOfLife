@@ -108,6 +108,16 @@ canvas
     margin-top: 20px;
 }
 
+#presetsSelect option:disabled
+{
+    color: #F00;
+}
+
+#previewCanvas
+{
+    margin: 5px;
+}
+
 table
 {
     border-collapse: collapse;

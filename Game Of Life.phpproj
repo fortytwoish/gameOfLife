@@ -30,6 +30,9 @@
     <Folder Include="Server\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Achievement_Logic.txt" />
+    <Content Include="cellPresetCoordinates_highToLow.json" />
+    <Content Include="cellPresetCoordinates_lowToHigh.json" />
     <Content Include="Client\gameOfLife_View.js" />
     <Content Include="Client\gameOfLife.css" />
     <Content Include="Client\gameOfLife_Logic.js" />

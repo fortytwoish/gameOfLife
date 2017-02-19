@@ -54,21 +54,21 @@
 					$content->showGameSelection();
 					break;
 				case "showGame":
-                    switch($values["boardSize"])
+                    switch(substr($values["boardSize"], 0, 2))
                     {
-                        case "0":
+                        case "XS":
                             $content->showGame(15);
                             break;
-                        case "1":
+                        case "S ":
                             $content->showGame(50);
                             break;
-                        case "2":
+                        case "M ":
                             $content->showGame(100);
                             break;
-                        case "3":
+                        case "L ":
                             $content->showGame(200);
                             break;
-                        case "4":
+                        case "XL":
                             $content->showGame(500);
                             break;
                         default:

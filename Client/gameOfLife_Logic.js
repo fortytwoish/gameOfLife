@@ -62,7 +62,8 @@ function generateBoard( _gameDim, isFreePlay )
                                 <label id="speed">0</label><br/>
                                 <h3>Preset</h3>
                                 <select id="presetsSelect" onchange="presetSelected(this.value)"></select>
-                                <canvas id="previewCanvas" width="200" height="200" moz-opaque></canvas>
+                                <canvas id="previewCanvas" width="250" height="250" onclick="previewCanvasClicked()"></canvas>
+                                <canvas id="cursorCanvas" style="visibility:hidden;" width="128" height="128"></canvas>
                                 <h3>Style</h3>
                                 <select onchange="setDisplayStyle(this.value)">
                                     <option>Plain</option>
@@ -113,12 +114,16 @@ function generateBoard( _gameDim, isFreePlay )
 
     document.write( "<br/><br/>" );
 
-    canvas = document.getElementById( "myCanvas" );
-    ctx = canvas.getContext( "2d" );
-
-    previewCtx = document.getElementById( "previewCanvas" ).getContext( "2d" );
+    canvas          = document.getElementById( "myCanvas" );
+    ctx             = canvas.getContext( "2d" );
+    previewCtx      = document.getElementById( "previewCanvas" ).getContext( "2d" );
+    cursorCanvas    = document.getElementById("cursorCanvas");
+    cursorCanvasCtx = cursorCanvas.getContext( "2d" );
+    cursorCanvasCtx.globalAlpha = 0.25;
 
     canvas.addEventListener( "mousedown", canvasClicked, false );
+
+    document.addEventListener( "keydown", keyPressed, false );
 
     setDisplayStyle( "Plain" );
 
@@ -139,13 +144,13 @@ function randomBoard()
             if ( Math.random() < 0.5 )
             {
                 ctx.fillStyle = offFillStyle;
-                drawPixel( x, y );
+                deletePixel( x, y, cellsize, ctx );
                 board[x][y] = false;
             }
             else
             {
                 ctx.fillStyle = onFillStyle;
-                drawPixel( x, y );
+                drawPixel( x, y, cellsize, ctx );
                 board[x][y] = true;
             }
         }
@@ -318,20 +323,37 @@ function createArray( length )
 //      Database interaction
 //====================================================================================================
 
-function setPresets( _jsonContent )
+function setPresets( loadedPresets )
 {
-    json = JSON.parse( _jsonContent );
-
-    var shapes = json["shapes"];
+    var shapes = loadedPresets["shapes"];
 
     var select = document.getElementById( "presetsSelect" );
+
+    //Reset dropdown
+    select.innerHTML = "<option>None</option>";
 
     for ( var shape in shapes )
     {
         var opt = document.createElement( 'option' );
-        opt.innerHTML = shape + "\t(" + shapes[shape]["count"] + ")";
-        select.appendChild( opt );
 
-        presets.set( shape, shapes[shape]["coordinates"] );
+        //1. get the largest dimension of the preset
+        var xDim = Object.keys( shapes[shape]["dimension"] )[0];
+        var maxDim = Math.max( xDim, shapes[shape]["dimension"][xDim] );
+
+        //2. if it exceeds the gameDim, disable the option
+
+        if ( gameDim < maxDim )
+        {
+            opt.disabled = true;
+            opt.innerHTML = shape + " (" + ( Object.keys( shapes[shape]["count"] )[0] - 1 ) + ") - dimensions exceed board";
+        }
+        else
+        {
+            opt.innerHTML = shape + " (" + ( Object.keys( shapes[shape]["count"] )[0] - 1 ) + ")";
+        }
+
+        select.appendChild( opt );
+        
+        presets.set( shape, shapes[shape]);
     }
 }

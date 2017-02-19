@@ -10,25 +10,25 @@ TODO/TBD:
 "0;0;0;0;0;0;0;0;0; 0; 0; 0; 0; 0";
  1 2 3 4 5 6 7 8 9 10 11 12 13 14
 ----------------------------------------------------------------------------------------------------------------------------
- 1 <-> FieldSize (1.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt 		| Preset 1	im Freeplay freischalten
- 2 <-> FieldSize (2.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt 		| Preset 2	im Freeplay freischalten
- 3 <-> FieldSize (3.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt 		| Preset 3	im Freeplay freischalten
- 4 <-> FieldSize (4.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt 		| Preset 4	im Freeplay freischalten
- 5 <-> FieldSize (5.) zu 50% gefärbt 				   "hin_und_wieder" gecheckt  		| Preset 5	im Freeplay freischalten
+ 0 <-> FieldSize (1.) zu 20% gefärbt 				   in jedem tick gecheckt 		
+ 1 <-> FieldSize (2.) zu 20% gefärbt 				   in jedem tick gecheckt 		
+ 2 <-> FieldSize (3.) zu 20% gefärbt 				   in jedem tick gecheckt 		
+ 3 <-> FieldSize (4.) zu 20% gefärbt 				   in jedem tick gecheckt 		
+ 4 <-> FieldSize (5.) zu 20% gefärbt 				   in jedem tick gecheckt
+ 5 <-> MaxScore  (1-5) zu 20% gefärbt  		
 ----------------------------------------------------------------------------------------------------------------------------
- 6 <-> MaxScore  (1.)	MaxScore erreicht												| Preset 6	im Freeplay freischalten
- 7 <-> MaxScore  (2.) 	MaxScore erreicht												| Preset 7	im Freeplay freischalten
- 8 <-> MaxScore  (3.) 	MaxScore erreicht												| Preset 8	im Freeplay freischalten
- 9 <-> MaxScore  (4.) 	MaxScore erreicht												| Preset 9 	im Freeplay freischalten
-10 <-> MaxScore  (5.) 	MaxScore erreicht												| Preset10	im Freeplay freischalten
-11 <-> MaxScore  (1-5)	MaxScore erreicht												| Preset11	im Freeplay freischalten
+ 6 <-> MaxScore  (1.)	MaxScore (~30%?) erreicht												
+ 7 <-> MaxScore  (2.) 	MaxScore (~30%?) erreicht												
+ 8 <-> MaxScore  (3.) 	MaxScore (~30%?) erreicht												
+ 9 <-> MaxScore  (4.) 	MaxScore (~30%?) erreicht												
+10 <-> MaxScore  (5.) 	MaxScore (~30%?) erreicht												
+11 <-> MaxScore  (1-5)	MaxScore (~30%?) erreicht												
 ----------------------------------------------------------------------------------------------------------------------------
-12 <-> 1st Place reached on leaderboard
-13 <-> Glider    click_inserted on FreeplayBoard ( while logged in )
-14 <-> Saustika  click_inserted on FreeplayBoard ( while logged in )
-15 <-> Swastika	 click_inserted on FreeplayBoard ( while logged in )
-16 <-> ?????     click_inserted on FreeplayBoard ( while logged in )
-
+12 <-> preset1
+13 <-> preset2
+14 <-> preset3
+15 <-> preset4
+.......
 
 		FieldSizes:			DIM    		MaxScore
 (1.)	1_extraSmall <-> 	 15	  <->		5%
@@ -36,9 +36,3 @@ TODO/TBD:
 (3.)	3_medium	 <-> 	100	  <->	   20%
 (4.)	4_large		 <-> 	200	  <->	   50%
 (5.)	5_extraLarge <->    500	  <->	  100%			
-
->>Shape Definitions:<<
-[1.]Glider
-[2.]Saustika
-[3.]Swastika
-[...]....

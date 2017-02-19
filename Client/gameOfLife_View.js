@@ -25,6 +25,9 @@ var ctx;
 //--------------------------
 var presets = new Map();
 var previewCtx;
+var cursorCanvas;
+var cursorCanvasCtx;
+var activePreset;
 
 //--------------------------
 //  Other
@@ -60,13 +63,13 @@ function display()
     ctx.fillStyle = onFillStyle;
     toRevive.forEach( function ( key )
     {
-        drawPixel( key.x, key.y );
+        drawPixel( key.x, key.y, cellsize, ctx );
     } );
 
     ctx.fillStyle = offFillStyle;
     toKill.forEach( function ( key )
     {
-        deletePixel( key.x, key.y );
+        deletePixel( key.x, key.y, cellsize, ctx );
     } );
 
     updateScore();
@@ -88,7 +91,7 @@ function setDisplayStyle( style )
                 onFillStyle = "rgba(0,0,0,1.0)";
                 offFillStyle = "rgba(255,255,255,1.0)";
 
-                drawPixel = deletePixel = function ( x, y )
+                drawPixel = deletePixel = function ( x, y, cellsize, ctx )
                 {
                     ctx.fillRect( x * cellsize, y * cellsize, cellsize, cellsize );
                 }
@@ -100,7 +103,7 @@ function setDisplayStyle( style )
                 onFillStyle = "rgba(0,200,50,1.0)";
                 offFillStyle = "rgba(40,40,40,1.0)";
 
-                drawPixel = deletePixel = function ( x, y )
+                drawPixel = deletePixel = function ( x, y, cellsize, ctx )
                 {
                     ctx.fillRect( x * cellsize + 0.75, y * cellsize + 0.75, cellsize - 2 * 0.75, cellsize - 2 * 0.75 );
                 }
@@ -112,7 +115,7 @@ function setDisplayStyle( style )
                 onFillStyle = "rgba(0,200,50,0.9)";
                 offFillStyle = "rgba(40,40,40,0.5)";
 
-                drawPixel = deletePixel = function ( x, y )
+                drawPixel = deletePixel = function ( x, y, cellsize, ctx )
                 {
                     ctx.fillRect( x * cellsize + 1.0 / 4, y * cellsize + 1.0 / 4, cellsize - 1.0 / 2, cellsize - 1.0 / 2 );
                 }
@@ -125,14 +128,14 @@ function setDisplayStyle( style )
                 offFillStyle = "rgba(255,255,255,1.0)";
                 ctx.strokeStyle = "rgba(0,0,0,1.0)";
 
-                drawPixel = function ( x, y )
+                drawPixel = function ( x, y, cellsize, ctx )
                 {
                     ctx.beginPath();
                     ctx.arc( x * cellsize + cellsize / 2, y * cellsize + cellsize / 2, cellsize / 4, 0, 2 * Math.PI, false );
                     ctx.fill();
                     ctx.stroke();
                 }
-                deletePixel = function ( x, y )
+                deletePixel = function ( x, y, cellsize, ctx )
                 {
                     ctx.fillRect( x * cellsize, y * cellsize, cellsize, cellsize );
                 }
@@ -145,22 +148,27 @@ function setDisplayStyle( style )
 
 var notificationTimeout; //prevents overlapping notifications
 
-function displayNotification(text)
+function displayNotification(text, upTimeMs)
 {
     clearTimeout( notificationTimeout );
 
     var notificationBar = document.getElementById( "notificationBar" );
     
-    notificationBar.style.height = 0;
+    //Preview setting of content to calculate accurate height
+    notificationBar.style.height = "auto";
     notificationBar.style.visibility = "visible";
+    notificationBar.innerHTML = "<span style=\"vertical-align: center;\">" + text + "</span>";
+    var maxHeight = notificationBar.offsetHeight;
+    console.log( maxHeight );
+    notificationBar.innerHTML = "";
 
     var height = 0;
 
     var timerInterval = setInterval( function ()
     {
-        height+= 2;
+        height += maxHeight/70;
         notificationBar.style.height = height + "px";
-        if(height >= 75)
+        if ( height >= maxHeight )
         {
             notificationBar.innerHTML = "<span style=\"vertical-align: center;\">" + text + "</span>";
             clearInterval( timerInterval );
@@ -173,7 +181,7 @@ function displayNotification(text)
 
         var timerInterval = setInterval( function ()
         {
-            height -= 1;
+            height -= maxHeight / 70;
             notificationBar.style.height = height + "px";
             if ( height <= 0 )
             {
@@ -181,7 +189,7 @@ function displayNotification(text)
                 notificationBar.style.visibility = "hidden";
             }
         }, 10 );
-    }, 5000 );
+    }, upTimeMs + 400 ); //400: time taken by popup
 
 }
 
@@ -189,29 +197,83 @@ function displayNotification(text)
 //      User interaction
 //====================================================================================================
 
-//Maximizes the canvas' size while making sure that cells always are multiples of 1 pixel² in size. (Subpixels look ugly)
+//Maximizes the canvas' size while making sure that cells always are multiples of 1 pixel² in size. (Subpixels be ugly)
 function canvasClicked(evt)
 {
-    displayNotification( "you clicked" );
-
     var mousePos = getMousePos( canvas, evt );
 
-    if ( board[mousePos.x][mousePos.y] )
+    if ( activePreset != null ) //Preset setting
     {
-        board[mousePos.x][mousePos.y] = false;
-        ctx.fillStyle = offFillStyle;
-        drawPixel( mousePos.x, mousePos.y );
-        score--;
-    }
-    else
-    {
-        board[mousePos.x][mousePos.y] = true;
         ctx.fillStyle = onFillStyle;
-        drawPixel( mousePos.x, mousePos.y );
-        score++;
-    }
 
-    updateScore();
+        //Iterate the preset's coordinates
+        for ( var index in activePreset.coordinates )
+        {
+            var point = activePreset.coordinates[index];
+
+            var x = Math.floor(mousePos.x + parseInt( point.substring( 1, point.indexOf( ":" ) ), 10 ) - 1);
+            var y = Math.floor(mousePos.y + parseInt( point.substring( point.indexOf( ":" ) + 1, point.length - 1 ), 10 ) - 1);
+
+            drawPixel( x, y, cellsize, ctx );
+
+            board[x][y] = true;
+        }
+    }
+    else //normal click
+    {
+        if ( board[mousePos.x][mousePos.y] )
+        {
+            board[mousePos.x][mousePos.y] = false;
+            ctx.fillStyle = offFillStyle;
+            deletePixel( mousePos.x, mousePos.y, cellsize, ctx );
+            score--;
+        }
+        else
+        {
+            board[mousePos.x][mousePos.y] = true;
+            ctx.fillStyle = onFillStyle;
+            drawPixel( mousePos.x, mousePos.y, cellsize, ctx );
+            score++;
+        }
+
+        updateScore();
+    }
+    
+}
+
+function previewCanvasClicked()
+{
+    //Set Preset
+    var presetSelection = document.getElementById("presetsSelect");
+    var basename        = presetSelection.value.substring( 0, presetSelection.value.indexOf( "(" ) - 1 );
+    activePreset        = presets.get( basename );
+
+    //Store Preview canvas as image
+    var image = new Image();
+
+    //Draw border and arrow in top left
+    cursorCanvasCtx.globalAlpha = 1.0;
+    cursorCanvasCtx.fillStyle = "rgba(0,0,0,1.0)";
+    cursorCanvasCtx.beginPath();
+    cursorCanvasCtx.rect( 0, 0, 127, 127 );
+    cursorCanvasCtx.stroke();
+    cursorCanvasCtx.fillRect( 0, 0, 12, 6 );
+    cursorCanvasCtx.fillRect( 0, 0, 6, 12 );
+    cursorCanvasCtx.fillStyle = "rgba(255,255,255,1.0)";
+    cursorCanvasCtx.fillRect( 2, 2, 8, 2 );
+    cursorCanvasCtx.fillRect( 2, 2, 2, 8 );
+
+    //Reset alpha
+    cursorCanvasCtx.globalAlpha = 0.25;
+    //Set the cursor
+    document.documentElement.style.cursor = "url(" + cursorCanvas.toDataURL( "image/png" ) + "), auto";
+
+    if ( window.localStorage.getItem("hasViewedPresetSettingTutorial") == null )
+    {
+        displayNotification( "Click the board to insert the Preset.<br/>Press Esc to exit.", 3500 );
+        window.localStorage.setItem( "hasViewedPresetSettingTutorial", "x" );
+    }
+    
 }
 
 function speedChanging( newValue )
@@ -311,22 +373,51 @@ function presetSelected(name)
 
     var preset = presets.get( basename );
 
-    previewCtx.clearRect( 0, 0, previewCtx.width, previewCtx.height );
+    previewCtx.clearRect( 0, 0, 250, 250 );
+    cursorCanvasCtx.clearRect( 0, 0, 128, 128 );
 
-    for(var index in preset)
+    if ( preset == null ) //"None" or unknown preset selected
     {
-        var point = preset[index];
+        return;
+    }
+    
+    previewCtx.fillStyle      = onFillStyle;
+    cursorCanvasCtx.fillStyle = onFillStyle;
 
-        var x = parseInt(point.substring( 1, point.indexOf( ":" )), 10);
-        var y = parseInt( point.substring( point.indexOf( ":" ) + 1, point.length - 1 ), 10 );
+    //Determine necessary preview space
+    //(Subtract 1 to compensate for the 1-based coordinates)
+    var xDim           = parseInt(Object.keys( preset.dimension )[0]);
+    var maxDim         = Math.max( xDim - 1, parseInt(preset.dimension[xDim]) - 1 );
+    var cellSize       = Math.floor( 250 / maxDim );
+    var cursorCellSize = Math.floor( 128 / maxDim );
 
-        previewCtx.fillStyle = "rgba(255,0,0,1.0)";
-        previewCtx.fillRect( 100 + x, 100 + y, 1, 1 );
+    //Iterate the preset's coordinates
+    for ( var index in preset.coordinates )
+    {
+        var point = preset.coordinates[index];
 
-        board[gameDim / 2 + x][gameDim / 2 + y] = true;
+        var x = parseInt( point.substring( 1, point.indexOf( ":" ) ), 10 ) - 1;
+        var y = parseInt( point.substring( point.indexOf( ":" ) + 1, point.length - 1 ), 10 ) - 1;
+
+        drawPixel( x, y, cellSize, previewCtx );
+        drawPixel( x, y, cursorCellSize, cursorCanvasCtx );
     }
 
-    display();
+    if(window.localStorage.getItem("hasViewedPresetSelectionTutorial") == null)
+    {
+        displayNotification( "You selected a Preset! Click its preview to active it.", 3500 );
+        window.localStorage.setItem( "hasViewedPresetSelectionTutorial", "x" );
+    }
+}
+
+function keyPressed(evt)
+{
+    switch(evt.key)
+    {
+        case "Escape":
+            cancelPreset();
+            break;
+    }
 }
 
 //====================================================================================================
@@ -392,4 +483,10 @@ function getMousePos( canvas, evt )
         x: Math.floor(( evt.clientX - rect.left ) / cellsize ),
         y: Math.floor(( evt.clientY - rect.top ) / cellsize )
     };
+}
+
+function cancelPreset()
+{
+    activePreset = null;
+    document.documentElement.style.cursor = "auto";
 }
