@@ -28,11 +28,13 @@ var previewCtx;
 var cursorCanvas;
 var cursorCanvasCtx;
 var activePreset;
+var activePresetName;
 
 //--------------------------
 //  Other
 //--------------------------
 var sliderWidth = 0;
+var notificationTimeout; //prevents overlapping notifications
 
 //====================================================================================================
 //      Display Board
@@ -143,10 +145,18 @@ function setDisplayStyle( style )
             break;
     }
 
+    if ( activePresetName != null )
+    {
+        presetSelected( activePresetName );
+        if(activePreset != null)
+        {
+            previewCanvasClicked();
+        }
+    }
+
+
     display();
 }
-
-var notificationTimeout; //prevents overlapping notifications
 
 function displayNotification(text, upTimeMs)
 {
@@ -369,6 +379,8 @@ function speedChanged( newValue )
 
 function presetSelected(name)
 {
+    activePresetName = name;
+
     var basename = name.substring( 0, name.indexOf( "(" ) - 1 );
 
     var preset = presets.get( basename );
