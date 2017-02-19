@@ -322,7 +322,11 @@ class Content
             $this->showAccount();
         }
         else
-            $this->showLogin("","");
+        {
+            $loginData = array( "username" => $username);
+            $otherErrors = array("username"=>"Username already in use");
+            $this->showLogin($loginData,$otherErrors);
+        }
     }
 
     public function logout()
