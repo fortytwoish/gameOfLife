@@ -401,66 +401,47 @@ class Content
         $tableString = "";
 
         //dummy data to be replaced by:
-        //$leaderBoard = getLeaderBoard()
+        $leaderBoard = $this->db->getLeaderBoard();
 
-        $leaderBoard[0][place]   = "rank";
-        $leaderBoard[0][uid]   = "id";
-        $leaderBoard[0][name]  = "name";
-        $leaderBoard[0][score]  = "score";
-
-        $leaderBoard[1][rank]   = "";
-        $leaderBoard[1][uid]   = "12331231231";
-        $leaderBoard[1][name]  = "Pratzner";
-        $leaderBoard[1][score]  = "15000";
-
-        $leaderBoard[2][rank]   = "";
-        $leaderBoard[2][uid]   = "12312311231";
-        $leaderBoard[2][name]  = "testheinz";
-        $leaderBoard[2][score]  = "150";
-
-        $leaderBoard[4][rank]   = "";
-        $leaderBoard[4][uid]   = "262";
-        $leaderBoard[4][name]  = "testjosef";
-        $leaderBoard[4][score]  = "12312";
-
-        $leaderBoard[5][rank]   = "";
-        $leaderBoard[5][uid]   = "256";
-        $leaderBoard[5][name]  = "testhurz";
-        $leaderBoard[5][score]  = "802";
-
-        $leaderBoard[6][rank]   = "";
-        $leaderBoard[6][uid]   = "5262";
-        $leaderBoard[6][name]  = "testdude";
-        $leaderBoard[6][score]  = "9172319";
-
-        $leaderBoard[7][rank]   = "";
-        $leaderBoard[7][uid]   = "12353423231";
-        $leaderBoard[7][name]  = "testgash";
-        $leaderBoard[7][score]  = "51209123";
-
-        $leaderBoard[8][rank]   = "";
+        /*$leaderBoard[8][rank]   = "";
         $leaderBoard[8][uid]   = "98765";
         $leaderBoard[8][name]  = "testtrash";
-        $leaderBoard[8][score]  = "123";
+        $leaderBoard[8][score]  = "123";*/
 
         $this->array_sort_by_column($leaderBoard, 'score');
+
+        $leaderArray = array();
+
+        $leaderArray[0]['Rank'] = "Rank";
+        $leaderArray[0]['name'] = "Name";
+        $leaderArray[0]['description'] = "BoardSize";
+        $leaderArray[0]['score'] = "Score";
+
+        $leaderCounter = 1;
+
+        foreach($leaderBoard as $row){
+            $leaderArray[$leaderCounter]['Rank']        = $leaderCounter . ".";
+            $leaderArray[$leaderCounter]['name']        = $row['name'];
+            $leaderArray[$leaderCounter]['description'] = $row['description'];
+            $leaderArray[$leaderCounter]['score']       = $row['score'];
+
+            $leaderCounter++;
+        }
 
         $tableString .= "<center>";
         $tableString .= "<table style='width:50%' id='leaderTable'>";
 
-        for($x = 0; $x < count($leaderBoard); $x++)
+        for($x = 0; $x < count($leaderArray); $x++)
         {
             $tableString .= "<tr>";
-            if($x >0)
-                $leaderBoard[$x][rank] = $x . ".";
-                foreach ($leaderBoard[$x] as $row)
-                {
-                    if($x>0)
-                        $tableString .=  "<td>".$row."</td>";
-                    else
-            	        $tableString .=  "<th>".$row."</th>";
-                }
-                $tableString .= "</tr>";
+            foreach ($leaderArray[$x] as $row)
+            {
+                if($x>0)
+                    $tableString .=  "<td>".$row."</td>";
+                else
+            	    $tableString .=  "<th>".$row."</th>";
+            }
+            $tableString .= "</tr>";
         }
 
         $tableString .= "</table>";
