@@ -261,6 +261,30 @@ class dataBase
         return "Error in 'getUserProgress'";
     }
 
+    public function getAchievements()
+    {
+        $uid = $this->getCurrentUserID();
+
+        $db = $this->linkDB();
+
+        if ($stmt = $db->prepare("select achievements FROM user WHERE uid = ?"))
+        {
+            $stmt->bind_param("s",$uid);
+            $stmt->execute();
+            $stmt->store_result();
+
+            $stmt->bind_result($achievement);
+
+            $stmt->fetch();
+
+            $stmt->free_result();
+
+            return $achievement;
+        }
+        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        return "Error in 'getUserProgress'";
+    }
+
     public function getSizes(){
 
         $uid = $this->getCurrentUserID();
@@ -279,7 +303,7 @@ class dataBase
 
             while ($stmt->fetch())
             {
-                array_push($resultArr, $score, $description);
+                array_push($resultArr, $description.' ('.$score.' max score)');
             }
 
             $stmt->free_result();

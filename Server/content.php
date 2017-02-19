@@ -103,10 +103,10 @@ class Content
                         <td><input type="password" name="password" value="'.$password.'"/> <span class="loginError">'.$passwordErr.'</span></td>
                     </tr>
                 </table>
-                <center>
+                <p>
                     <input type="submit" name="accountAction" value="Login"/>
                     <input type="submit" name="accountAction" value="Create"/>
-                </center>
+                </p>
                 <input type="hidden" name="do" value="accountAction"/>
               </form>';
 	}
@@ -123,6 +123,10 @@ class Content
 
     public function showGameSelection()
     {
+
+        var_dump($this->parseAchievementString());
+
+
         $this->showNavigation(1);
 
         if($this->userName == null)
@@ -141,6 +145,60 @@ class Content
                         <input type="hidden" name="do" value="showGame"/>
                     </form>';
         }
+        else
+        { //Logged in User - allow only unlocked Sizes and display existing boards
+
+            $sizeOptions = "";
+
+            foreach ($this->db->getSizes() as $key => $value)
+            {
+                $sizeOptions .= '<option>'.$value.'</option>';
+            }
+
+            foreach ($this->db->getBoards() as $key => $value)
+            {
+                echo $key.' - '.$value.'<br>'; //TODO
+                //$sizeOptions .= '<option>'.$value.'</option>';
+            }
+
+            echo '  <form action="welcome.php" method="POST">
+                        <h3>Create a new Board</h3>
+                        <table>
+                            <tr>
+                                <td>
+                                    <b>Board Size:</b>
+                                </td>
+                                <td>
+                                    <select name="boardSize" style="width:100%">
+                                        '.$sizeOptions.'
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Board Name:</b>
+                                </td>
+                                <td>
+                                    <input type="text" name="newBoardName"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <input type="submit" name="boardSelectOrCreate" value="Create"/>
+
+                        <br/>
+
+                        <h3>Choose an existing Board</h3>
+                        <select name="existingBoardName">
+
+                        </select>
+                        <input type="submit" name="boardSelectOrCreate" value="Play"/>
+
+                        <br/>
+
+                        <input type="hidden" name="do" value="showGame"/>
+                    </form>';
+        }
     }
 
 	public function showGame($boardSize)
@@ -154,6 +212,14 @@ class Content
             $contents = file_get_contents("../cellPresetCoordinates.json");
             $contents = utf8_encode($contents);
             $result   = json_encode($contents);
+        }
+        else
+        {
+            echo "BEWEIS";
+            var_dump($this->parseAchievementString());
+            echo($this->parseAchievementString());
+            $result = "";
+
         }
 
 		$this->showNavigation(1);
@@ -379,6 +445,53 @@ class Content
         $results = json_encode($contents);
         var_dump($results);
 	}
+
+    public function parseAchievementString()
+    {
+        $achievementString = $this->db->getAchievements();
+
+        $unlockedAchievements = array();
+
+        $index = 0;
+
+        foreach(str_split($achievementString) as $char)
+        {
+            $index++;
+
+            if($char == '1')
+            {
+                $unlockedAchievements[$index] = $this->achievementIndexToDescription($index);
+            }
+        }
+
+        return $unlockedAchievements;
+    }
+
+    private function achievementIndexToDescription($ind)
+    {
+        switch($ind)
+        {
+            case 0: return "XS: max score of 20% reached.";
+            case 1: return "S : max score of 20% reached.";
+            case 2: return "M : max score of 20% reached.";
+            case 3: return "L : max score of 20% reached.";
+            case 4: return "XL: max score of 20% reached.";
+
+            case 5: return "XS: max score of 30% reached.";
+            case 6: return "S : max score of 30% reached.";
+            case 7: return "M : max score of 30% reached.";
+            case 8: return "L : max score of 30% reached.";
+            case 9: return "XL: max score of 30% reached.";
+
+            case 10: return "Unlocked preset 1.";
+            case 11: return "Unlocked preset 2.";
+            case 12: return "Unlocked preset 3.";
+            case 13: return "Unlocked preset 4.";
+            case 14: return "Unlocked preset 5.";
+
+            default: return "Unknown Achievement";
+        }
+    }
 
 }
 

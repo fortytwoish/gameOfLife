@@ -74,7 +74,7 @@ function generateBoard( _gameDim, isFreePlay )
                             </div>
                             <div id="flexMiddle">
                                 <center>
-                                    <canvas id="myCanvas" width="${gameDim * cellsize}" height="${gameDim * cellsize}" style="min-width: ${gameDim}; min-height: ${gameDim}; background: gray;" moz-opaque></canvas>
+                                    <canvas id="myCanvas" width="${gameDim * cellsize}" height="${gameDim * cellsize}" style="min-width: ${gameDim}; min-height: ${gameDim};" moz-opaque></canvas>
                                 </center>
                             </div>
                             <div id="flexRight">
@@ -108,8 +108,6 @@ function generateBoard( _gameDim, isFreePlay )
                                 <input type="button" value="randomize" onclick="randomBoard()"/><br/ >
                             </div>
                         </div>`  );
-
-
 
     sliderWidth = document.getElementById( "speedRange" ).clientWidth;
 

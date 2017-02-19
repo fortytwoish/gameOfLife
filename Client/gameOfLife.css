@@ -125,7 +125,7 @@ table tr, table td
     border: 1px solid black;
 }
 
-table td:last-child
+#flexRight table td:last-child
 {
     width: 100%;
     text-align: center;
