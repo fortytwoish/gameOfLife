@@ -310,20 +310,19 @@ class Content
             $this->showAccount();
         }
         else
-            echo "<h2>Not logged in T_T</h2>";
+            echo "<h2>Not logged in. Try Again!</h2>";
     }
 
     public function create($username, $password)
     {
-        echo $username.' your account has been created';
-
-        $this->db->createUser($username, $password);
-
-        echo ' creation done';
-
-        $this->setUser($username);
-
-        $this->showAccount();
+        //echo $username.' your account has been created';
+        if($this->db->createUser($username, $password))
+        {
+            $this->setUser($username);
+            $this->showAccount();
+        }
+        else
+            $this->showLogin("","");
     }
 
     public function logout()
@@ -353,13 +352,9 @@ class Content
             file_put_contents("tmpfile.txt", "");
             fclose($handle);
         } else {
-            // error opening the file.
+            var_dump("error in boardUPdate");
         }
-
-        $tmp = $this->db->setUserProgress($arr,50,$score);
-
-        echo 'Success? : ' . $tmp;
-    }
+   }
 
     public function sendBoardToDB(){
 
