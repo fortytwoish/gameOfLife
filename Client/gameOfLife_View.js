@@ -475,6 +475,7 @@ function oneSecondTimer()
 
 function updateScore()
 {
+
     if ( score > maxScore )
     {
         maxScore = score;

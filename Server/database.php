@@ -295,13 +295,13 @@ class dataBase
         return "Error in 'getLeaderBoard()'". $stmt->error;
     }
 
-    public function getUserProgress($uid = ""){
-
+    public function getUserProgress($uid = "")
+    {
         if($uid == "") $uid = $this->getCurrentUserID();
 
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("SELECT score,sid FROM progress WHERE uid =?"))
+        if ($stmt = $db->prepare("SELECT p.score, s.description FROM progress p, size s WHERE uid =? AND p.sid = s.sid"))
         {
             $resultArr = array();
 
@@ -309,11 +309,11 @@ class dataBase
             $stmt->execute();
             $stmt->store_result();
 
-            $stmt->bind_result($score,$sid);
+            $stmt->bind_result($score,$descr);
 
             while ($stmt->fetch())
             {
-                array_push($resultArr, $score, $sid);
+                $resultArr[$descr] =$score;
             }
 
             $stmt->free_result();
@@ -375,13 +375,13 @@ class dataBase
         return "Error in 'getUserProgress'";
     }
 
-    public function getBoards(){
+    public function getBoardNamesAndSizes(){
 
         $uid = $this->getCurrentUserID();
 
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("SELECT boardname FROM board WHERE uid =?"))
+        if ($stmt = $db->prepare("SELECT boardname, s.description FROM board b, size s WHERE uid =? AND b.sid = s.sid"))
         {
             $resultArr = array();
 
@@ -389,11 +389,11 @@ class dataBase
             $stmt->execute();
             $stmt->store_result();
 
-            $stmt->bind_result($name);
+            $stmt->bind_result($name, $size);
 
             while ($stmt->fetch())
             {
-                array_push($resultArr, $name);
+                array_push($resultArr, $name.' - '.$size);
             }
 
             $stmt->free_result();
