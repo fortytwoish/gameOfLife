@@ -115,10 +115,33 @@ class Content
     {
         $this->showNavigation(0);
 
-        echo '<form action="welcome.php" method="POST">
-                <input type="submit" name="do" value="Logout" />
-                <p>showing account of user: '.$this->userName.'</p>
-              </form>';
+        $boardArr = $this->db->getBoards();
+
+        $logoutForm =  '<form action="welcome.php" method="POST">
+                            <input type="submit" name="do" value="Logout" />
+                            <p>showing account of user: '.$this->userName.'</p>
+                        </form>';
+
+        if(count($boardArr) == 0 ){
+        $boardListHtml =     '<center><table>
+                                <tr>
+                                <th><h2>You don\'t have any Boards yet. Start playing NOW! </h2></th>
+                                </tr>';
+        }
+        else
+        $boardListHtml =  '<center><table>
+                                <tr>
+                                <th><h2>Your Current Boards:</h2></th>
+                                </tr>';
+
+        foreach ($boardArr as $boardRow)
+        {
+            $boardListHtml .="<tr><td>".$boardRow."</td></tr>";
+        }
+        $boardListHtml .= "</table>".$logoutForm."</center>";
+
+        echo $boardListHtml;
+
     }
 
     public function showGameSelection()
