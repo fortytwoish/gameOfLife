@@ -115,40 +115,96 @@ class Content
     {
         $this->showNavigation(0);
 
-        $boardArr = $this->db->getBoards();
+        $boardArr = $this->db->getBoardNamesAndSizes();
 
-        $logoutForm =  '<form action="welcome.php" method="POST">
-                            <input type="submit" name="do" value="Logout" />
-                            <p>showing account of user: '.$this->userName.'</p>
-                        </form>';
+        $logoutFormHtml =  '<form action="welcome.php" method="POST">
+                                <input type="submit" name="do" value="Logout" />
+                            </form>';
 
-        if(count($boardArr) == 0 ){
-        $boardListHtml =     '<center><table>
-                                <tr>
-                                <th><h2>You don\'t have any Boards yet. Start playing NOW! </h2></th>
-                                </tr>';
+    //----------------------------------------------------
+        $boardListHtml = '<h3>Your Boards</h3>';
+    //----------------------------------------------------
+
+        if(count($boardArr) == 0 )
+        {
+            $boardListHtml .= 'You don\'t have any Boards yet. Start playing NOW!';
         }
         else
-        $boardListHtml =  '<center><table>
-                                <tr>
-                                <th><h2>Your Current Boards:</h2></th>
-                                </tr>';
-
-        foreach ($boardArr as $boardRow)
         {
-            $boardListHtml .="<tr><td>".$boardRow."</td></tr>";
-        }
-        $boardListHtml .= "</table>".$logoutForm."</center>";
+            $boardListHtml .= '<ul>';
 
-        echo $boardListHtml;
+            foreach ($boardArr as $boardRow)
+            {
+                $boardListHtml .="<li>{$boardRow}</li>";
+            }
+
+            $boardListHtml .= "</ul>";
+        }
+
+    //----------------------------------------------------
+        $progressHtml = '<h3>Your Progress</h3>';
+    //----------------------------------------------------
+
+        $progressHtml .= '<table>
+                            <tr>
+                                <td>Size</td>
+                                <td>MaxScore</td>
+                            </tr>';
+
+        foreach($this->db->getUserProgress() as $size => $score)
+        {
+            $progressHtml .= "<tr>
+                                  <td>{$size}</td>
+                                  <td>{$score}</td>
+                              </tr>";
+        }
+
+        $progressHtml.='</table>';
+
+    //----------------------------------------------------
+        $achievementsHtml = '<h3>Your Achievements</h3>';
+    //----------------------------------------------------
+
+        $achievementString = $this->db->getAchievements();
+        $index             = 0;
+
+        echo '<script>
+                function setAchievementDisplay(text)
+                {
+                    document.getElementById("selectedAchievementParagraph").innerHTML=text;
+                }
+            </script>';
+
+        foreach(str_split($achievementString) as $char)
+        {
+            $index++;
+
+            $descr = $this->achievementIndexToDescription($index);
+
+            if($char == '1')
+            {
+                $achievementsHtml.="<div class=\"unlockedAchievement\" onmouseover=\"setAchievementDisplay('<h3>(unlocked) Achievement #".$index."</h3>".$descr."')\">{$index}</div>";
+            }
+            else
+            {
+                $achievementsHtml.="<div class=\"lockedAchievement\" onmouseover=\"setAchievementDisplay('<h3>(locked) Achievement #".$index."</h3>".$descr."')\">{$index}</div>";
+            }
+        }
+
+        $achievementsHtml.="<p id=\"selectedAchievementParagraph\"/>";
+
+    //----------------------------------------------------
+    //----------------------------------------------------
+
+        echo $boardListHtml
+             .$progressHtml
+             .$achievementsHtml
+             .$logoutFormHtml;
 
     }
 
     public function showGameSelection()
     {
-
-        var_dump($this->getUnlockedAchievements());
-
 
         $this->showNavigation(1);
 
@@ -172,16 +228,16 @@ class Content
         { //Logged in User - allow only unlocked Sizes and display existing boards
 
             $sizeOptions = "";
+            $existingBoards = "";
 
             foreach ($this->db->getSizes() as $key => $value)
             {
                 $sizeOptions .= '<option>'.$value.'</option>';
             }
 
-            foreach ($this->db->getBoards() as $key => $value)
+            foreach ($this->db->getBoardNamesAndSizes() as $key => $value)
             {
-                echo $key.' - '.$value.'<br>'; //TODO
-                //$sizeOptions .= '<option>'.$value.'</option>';
+                $existingBoards .= '<option>'.$value.'</option>';
             }
 
             echo '  <form action="welcome.php" method="POST">
@@ -211,9 +267,9 @@ class Content
 
                         <br/>
 
-                        <h3>Choose an existing Board</h3>
-                        <select name="existingBoardName">
-
+                        <h3>Resume an existing Board</h3>
+                        <select name="boardName">
+                            '.$existingBoards.'
                         </select>
                         <input type="submit" name="boardSelectOrCreate" value="Play"/>
 
