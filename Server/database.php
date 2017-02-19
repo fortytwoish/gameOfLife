@@ -58,23 +58,30 @@ class dataBase
     public function createUser($name, $pw)
     {
         $db      = $this->linkDB();
-
-        $this->setUserProgress("",15,0);
         $uid     = $this->createGUID();
         $score   = 0;
         $options = ['cost' => 11];
         $salt    = uniqid(mt_rand(), true);
         $hash    = password_hash($pw.$salt, PASSWORD_BCRYPT, $options);
+        $achievementString = "";
 
-        if($stmt = $db->prepare("INSERT INTO user VALUES (?,?,?,?,?)"))
+        for($i = 0; $i <200; $i++) $achievementString .= "0";
+
+        if($stmt = $db->prepare("INSERT INTO user VALUES (?,?,?,?,?,?)"))
         {
-
-            $stmt->bind_param("sssis",$uid, $name, $hash, $score, $salt);
+            $stmt->bind_param("sssiss",$uid, $name, $hash, $score, $salt, $achievementString);
             $stmt->execute();
         }
         else
         {
             var_dump($db->error);
+        }
+
+        if($stmt->error_list >0){
+            echo "This Username is already in use! Please choose another one";
+        }
+        else{
+            $this->setUserProgress($name,"",15,0);
         }
     }
     // WORKING
@@ -106,12 +113,12 @@ class dataBase
         $db = $this->linkDB();
 
         if($username == ""){
-            $name = $this->Content->userName;
+            $username = $_SESSION['username'];
         }
 
         if($stmt = $db->prepare("SELECT uid FROM user WHERE name=?"))
         {
-            $stmt->bind_param("s",$name);
+            $stmt->bind_param("s",$username);
             $stmt->execute();
             $stmt->store_result();
 
@@ -172,7 +179,7 @@ class dataBase
     //TODO: ENFORCE UNIQUE NAMES PER PLAYER
     public function getBoardID($boardName){
 
-        $uid    = $this->getCurrentUserID();
+        $uid    = $this->getCurrentUserID($_SESSION['username']);
         $db     = $this->linkDB();
 
         if ($stmt = $db->prepare("SELECT bid FROM board WHERE uid=? AND name=?"))
@@ -192,24 +199,76 @@ class dataBase
         return "Error in 'getBoardID'";
     }
 
+
+
     //TODO: get $bid properly
-    public function setUserProgress($board,$boardDim,$score)
+    public function setUserProgress($username="",$board,$boardDim,$currentScore)
     {
         //Check for BID solution, for debug hardcoded!
-        $bid    = "547156ae-0088-4537-ae6c-2589e83b6cce";
-        $db     = $this->linkDB();
 
-        if($stmt = $db->prepare("UPDATE board SET boardstate=?, score=? WHERE bid=?"))
-        {
-            $stmt->bind_param("sis",$board,$score,$bid);
-            ($stmt->execute());
-            return true;
-        }
+        $db     = $this->linkDB();
+        if($username != "")
+            $currentUser = $this->getCurrentUserID($username);
         else
-        {
-            var_dump($db->error);
-            return false;
+            $currentUser = $this->getCurrentUserID();
+
+        $currentSid ="";
+        $currentSizePoints = "";
+
+        if($stmt1 = $db->prepare("SELECT sid from size where dimension=?")){
+
+             $stmt1->bind_param("s",$boardDim);
+             $stmt1->execute();
+
+             $stmt1->store_result();
+             $stmt1->bind_result($sid);
+             $stmt1->fetch();
+             $stmt1->free_result();
+             $currentSid = $sid;
+         }
+
+        if($stmt = $db->prepare("SELECT score FROM progress WHERE sid=? AND uid=?")){
+
+            $stmt->bind_param("ss",$currentSid, $currentUser);
+            $stmt->execute();
+
+            $stmt->store_result();
+            $stmt->bind_result($score);
+            $stmt->fetch();
+            $stmt->free_result();
+
+            $currentSizePoints = $score;
         }
+
+        if($currentSizePoints == NULL){
+            $startScore = 0;
+            if($stmt = $db->prepare("INSERT INTO progress VALUES (?,?,?)"))
+            {
+                $stmt->bind_param("sis",$currentSid,$startScore,$currentUser);
+                ($stmt->execute());
+                return true;
+            }
+            else{
+                echo "Progress Update FAILED";
+                return false;
+            }
+        }
+        else if($currentScore > $currentSizePoints){
+
+            if($stmt = $db->prepare("UPDATE progress SET score=? WHERE uid=? and sid=?"))
+            {
+                $stmt->bind_param("iss",$currentScore,$currentUser,$currentSid);
+                ($stmt->execute());
+                return true;
+            }
+            else{
+                echo "boardProgress Update FAILED";
+                return false;
+            }
+        }
+
+        echo 'Nothing to update';
+        return false;
     }
 
     //net schön aber wegweisend
