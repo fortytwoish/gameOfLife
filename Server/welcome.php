@@ -41,9 +41,8 @@
 				$do = _GET_SANITIZED("do");
 			}
 
-            echo("<script>alert(\"YO\")</script>");
-
-            var_dump($_POST);
+            file_put_contents("tmpfile.txt", ""); //If the board transport to the database ever gets stuck, any navigation
+                                                  // will fix it
 
 			switch($do)
 			{
@@ -75,10 +74,12 @@
                             {
                                 if(isset($values["boardName"]))
                                 {
+
                                     $boardName = $values["boardName"];
                                     $boardName = explode(" -", $boardName)[0];
                                     $board = $content->db->getBoard($boardName);
                                     $content->showGame(sqrt(strlen($board)), $boardName, $board, false);
+
                                     return;
                                 }
                             }
@@ -182,9 +183,85 @@
                     break;
                 case "updateAchievements":
                     {
-                        $db = $this->content->db;
+                        $db = $content->db;
 
-                        $
+                        $achievements = $db->getAchievements();
+
+                        echo "achievements before: ".$achievements;
+
+                        switch($_POST["boardSize"])
+                        {
+                            case "15":
+                                {
+                                    if($_POST["20Percent"] == "true")
+                                    {
+                                        $achievements[0] = "1";
+                                        $db->setUserProgress($_POST["boardName"], 50, $_POST["maxScore"]); //unlock next stage
+                                    }
+                                    if($_POST["30Percent"] == "true")
+                                    {
+                                        $achievements[6] = "1";
+                                        for($i = 12; $i < 50; $i++) $achievements[$i] = "1"; //unlock presets
+                                    }
+                                }
+                                break;
+                            case "50":
+                                {
+                                    if($_POST["20Percent"] == "true")
+                                    {
+                                        $achievements[1] = "1";
+                                        $db->setUserProgress($_POST["boardName"], 100, $_POST["maxScore"]);
+                                    }
+                                    if($_POST["30Percent"] == "true")
+                                    {
+                                        $achievements[7] = "1";
+                                        for($i = 51; $i < 100; $i++) $achievements[$i] = "1";
+                                    }
+                                }
+                                break;
+                            case "100":
+                                {
+                                    if($_POST["20Percent"] == "true")
+                                    {
+                                        $achievements[2] = "1";
+                                        $db->setUserProgress($_POST["boardName"], 200, $_POST["maxScore"]);
+                                    }
+                                    if($_POST["30Percent"] == "true")
+                                    {
+                                        $achievements[8] = "1";
+                                        for($i = 101; $i < 150; $i++) $achievements[$i] = "1";
+                                    }
+                                }
+                                break;
+                            case "200":
+                                {
+                                    if($_POST["20Percent"] == "true")
+                                    {
+                                        $achievements[3] = "1";
+                                        $db->setUserProgress($_POST["boardName"], 500, $_POST["maxScore"]);
+                                    }
+                                    if($_POST["30Percent"] == "true")
+                                    {
+                                        $achievements[9] = "1";
+                                        for($i = 151; $i < 190; $i++) $achievements[$i] = "1";
+                                    }
+                                }
+                                break;
+                            case "500":
+                                {
+                                    if($_POST["20Percent"] == "true") $achievements[4] = "1";
+                                    if($_POST["30Percent"] == "true")
+                                    {
+                                        $achievements[10] = "1";
+                                        for($i = 191; $i < 198; $i++) $achievements[$i] = "1";
+                                    }
+                                }
+                                break;
+                        }
+
+                        echo "achievements after: ".$achievements;
+
+                        $db->updateAchievements($achievements);
                     }
 					break;
 				default:

@@ -145,6 +145,12 @@ function generateBoard( _gameDim, isFreePlay, _boardName, isNewBoard )
     window.onresize = maximizeCanvas;
 
     maximizeCanvas();
+
+    if(isNewBoard)
+    {
+        uploadBoard();
+        money = 20;
+    }
 }
 
 function randomBoard()
@@ -313,11 +319,13 @@ function tick()
         {
             has20PercentAchievement = true;
             updateAchievements();
+            displayNotification( "You managed to fill 20% of the board at the same time!<br>The next biggest size has been unlocked for you.", 3500 );
         }
         if ( !has30PercentAchievement && maxScore > gameDim * gameDim * 0.3 )
         {
             has30PercentAchievement = true;
             updateAchievements();
+            displayNotification( "Congratulations! You managed to fill 30% of the board at the same time!<br>Some Presets have been unlocked for you.", 3500 );
         }
     }
 
@@ -429,7 +437,7 @@ function updateAchievements()
     http.open("POST", "./welcome.php", true);
     http.setRequestHeader( "Content-type", "application/x-www-form-urlencoded" );
 
-    var params = "do=updateAchievements&boardSize=" + gameDim + "&20Percent=" + has20PercentAchievement + "&30Percent=" + has30PercentAchievement;
+    var params = "do=updateAchievements&boardSize=" + gameDim + "&20Percent=" + has20PercentAchievement + "&30Percent=" + has30PercentAchievement + "&boardName="+boardName + "&maxScore="+maxScore;
 
     http.send( params );
 }

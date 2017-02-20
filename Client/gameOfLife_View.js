@@ -479,12 +479,6 @@ function oneSecondTimer()
 
 function updateScore()
 {
-
-    if ( score > maxScore )
-    {
-        maxScore = score;
-    }
-
     document.getElementById( "scoreLabel" ).innerHTML    = `${score} / ${gameDimSq}  (${(score/gameDimSq*100).toFixed(2)}%)`;
     document.getElementById( "maxScoreLabel" ).innerHTML = `${maxScore} / ${gameDimSq}  (${( maxScore / gameDimSq * 100 ).toFixed( 2 )}%)`;
 }

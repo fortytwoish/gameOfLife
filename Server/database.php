@@ -87,7 +87,7 @@ class dataBase
             return false;
         }
         else{
-            $this->setUserProgress($name,"",15,0);
+            $this->setUserProgress("",15,0,$name);
             return true;
         }
     }
@@ -247,8 +247,7 @@ class dataBase
         return "Error in 'getBoardID'";
     }
 
-    //TODO: get $bid properly
-    public function setUserProgress($username="",$board,$boardDim,$currentScore)
+    public function setUserProgress($board,$boardDim,$currentScore,$username="")
     {
         //Check for BID solution, for debug hardcoded!
 
@@ -317,8 +316,6 @@ class dataBase
         return false;
     }
 
-    //net schön aber wegweisend
-    //TODO: Set OutputStyle the way demanded!!!
     public function getLeaderBoard()
     {
         $db = $this->linkDB();
@@ -416,7 +413,7 @@ class dataBase
 
         $db = $this->linkDB();
 
-        if ($stmt = $db->prepare("select max(progress.score), size.description from progress, size WHERE progress.uid = ? AND progress.sid = size.sid"))
+        if ($stmt = $db->prepare("select progress.score, size.description from progress, size WHERE progress.uid = ? AND progress.sid = size.sid"))
         {
             $resultArr = array();
 

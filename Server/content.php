@@ -145,17 +145,12 @@ class Content
         $progressHtml = '<h3>Your Progress</h3>';
     //----------------------------------------------------
 
-        $progressHtml .= '<table>
-                            <tr>
-                                <td>Size</td>
-                                <td>MaxScore</td>
-                            </tr>';
+        $progressHtml .= '<table>';
 
         foreach($this->db->getUserProgress() as $size => $score)
         {
             $progressHtml .= "<tr>
-                                  <td>{$size}</td>
-                                  <td>{$score}</td>
+                                  <td>{$size} unlocked!</td>
                               </tr>";
         }
 
@@ -177,7 +172,7 @@ class Content
 
         foreach(str_split($achievementString) as $char)
         {
-            $index++;
+
 
             $descr = $this->achievementIndexToDescription($index);
 
@@ -189,6 +184,8 @@ class Content
             {
                 $achievementsHtml.="<div class=\"lockedAchievement\" onmouseover=\"setAchievementDisplay('<h3>(locked) Achievement #".$index."</h3>".$descr."')\">{$index}</div>";
             }
+
+            $index++;
         }
 
         $achievementsHtml.="<p id=\"selectedAchievementParagraph\"/>";
@@ -437,7 +434,6 @@ class Content
     public function updateBoardtoDb(){
 
         $arr = "";
-        $score = "1339";
         $handle = fopen("tmpfile.txt", "rb");
 
         if ($handle) {
@@ -573,12 +569,13 @@ class Content
 
         foreach(str_split($achievementString) as $char)
         {
-            $index++;
 
             if($char == '1')
             {
                 $unlockedAchievements[$index] = $this->achievementIndexToDescription($index);
             }
+
+            $index++;
         }
 
         return $unlockedAchievements;
@@ -606,6 +603,7 @@ class Content
             case 10: return "XL: max score of 30% reached.";
             case 11: return "All max scores of 30% reached.";
 
+            //TODO: Fill in names
             case 12:  return "Unlocked preset  12";
             case 13:  return "Unlocked preset  13";
             case 14:  return "Unlocked preset  14";
