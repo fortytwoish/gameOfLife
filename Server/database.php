@@ -9,10 +9,10 @@ class dataBase
 {
     private $Content;
     //Einstellungen für XAMPP
-    private $dbName   = "pbs2h15amu_gol";
-    private $linkName = "mysqlpb.pb.bib.de";
-    private $user     = "pbs2h15amu";
-    private $pw       = "hZtNe7Pe";
+    private $dbName   = "u373049832_gol";
+    private $linkName = "mysql.hostinger.com";
+    private $user     = "u373049832_mamue";
+    private $pw       = "QTDxSWls1xjgXPpowU";
 
     public function __construct($_content)
     {
@@ -111,7 +111,7 @@ class dataBase
                 return (password_verify($pw . $salt, $pwFromDb));
             }
         }
-        else { var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else { var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return false;
     }
 
@@ -137,7 +137,7 @@ class dataBase
                 $stmt->fetch();
                 return $currentUid;
             }
-            else { var_dump("Current/Entered User Name: "    . $name . " <br><br>"); }
+            else { /*var_dump("Current/Entered User Name: "    . $name . " ");*/ }
         }
         return "Error in 'getCurrentUserID'";
     }
@@ -159,7 +159,7 @@ class dataBase
                 return $sid;
             }
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else {  var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return null;
     }
 
@@ -180,7 +180,7 @@ class dataBase
                 return $sid;
             }
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else {  var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return null;
     }
 
@@ -243,7 +243,7 @@ class dataBase
                 return $bid;
             }
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else {  var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return "Error in 'getBoardID'";
     }
 
@@ -333,7 +333,7 @@ class dataBase
             $stmt->free_result();
             return $results_array;
         }
-        // else {  var_dump($db->error . "<br><br> stmt_error:" . $stmt->error); }
+        // else {  var_dump($db->error . " stmt_error:" . $stmt->error); }
         return "Error in 'getLeaderBoard()'". $stmt->error;
     }
 
@@ -361,7 +361,7 @@ class dataBase
             $stmt->free_result();
             return $resultArr;
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else {  var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return "Error in 'getUserProgress'";
     }
 
@@ -385,7 +385,7 @@ class dataBase
 
             return $achievement;
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else {  var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return "Error in 'getUserProgress'";
     }
 
@@ -431,7 +431,7 @@ class dataBase
             $stmt->free_result();
             return $resultArr;
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else {  var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return "Error in 'getUserProgress'";
     }
 
@@ -459,7 +459,7 @@ class dataBase
             $stmt->free_result();
             return $resultArr;
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else {  var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return "Error in 'getUserProgress'";
     }
 
@@ -482,7 +482,7 @@ class dataBase
             $stmt->free_result();
             return $board;
         }
-        else {  var_dump($db->error . " <br><br> stmt_error:" . $stmt->error); }
+        else {  var_dump($db->error . "  stmt_error:" . $stmt->error); }
         return "Error in 'getBoard'";
     }
 }

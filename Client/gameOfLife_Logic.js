@@ -51,7 +51,7 @@ function generateBoard( _gameDim, isFreePlay, _boardName, isNewBoard )
     if ( isNewBoard && window.localStorage.getItem( "hasViewedNewBoardTutorial" ) == null )
     {
         displayNotification( "You have created a new board!<br>On the right side, your current money is shown. You can spend it to set cells and reset the board to get your money back.<br>"
-                            + "Your maximum money increases when you get Achievements (max Score > 20% or 30%, per Size).<br><br>"
+                            + "Your maximum money increases when you get Achievements (max Score > 20% or 30%, per Size)."
                             + "REMEMBER TO SAVE YOUR BOARD BEFORE YOU LEAVE! (Button in the upper left)",
                             15000 );
         window.localStorage.setItem( "hasViewedNewBoardTutorial", "x" );
@@ -76,8 +76,7 @@ function generateBoard( _gameDim, isFreePlay, _boardName, isNewBoard )
                                 <label id="speed">0</label><br/>
                                 <h3>Preset</h3>
                                 <select id="presetsSelect" onchange="presetSelected(this.value)"></select>
-                                <canvas id="previewCanvas" width="250" height="250" onclick="previewCanvasClicked()"></canvas>
-                                <canvas id="cursorCanvas" style="visibility:hidden;" width="128" height="128"></canvas>
+                                <canvas id="previewCanvas" width="100" height="100" onclick="previewCanvasClicked()"></canvas>
                                 <h3>Style</h3>
                                 <select onchange="setDisplayStyle(this.value)">
                                     <option>Plain</option>
@@ -85,7 +84,7 @@ function generateBoard( _gameDim, isFreePlay, _boardName, isNewBoard )
                                     <option>Tech_Hi</option>
                                     <option>Dots</option>
                                 </select>
-                                <button>Reset</button>
+                                <canvas id="cursorCanvas" style="visibility:hidden;" width="128" height="128"></canvas>
                             </div>
                             <div id="flexMiddle">
                                 <center>
@@ -120,14 +119,14 @@ function generateBoard( _gameDim, isFreePlay, _boardName, isNewBoard )
                                         <td><label id="moneyLabel"></label></td>
                                     </tr>
                                 </table>
-                                <h3>Debug</h3>
-                                <input type="button" value="randomize" onclick="randomBoard()"/><br/ >
+                                <h3>Cheat</h3>
+                                <input type="button" value="Randomize" onclick="randomBoard()"/>
                             </div>
                         </div>`  );
 
     sliderWidth = document.getElementById( "speedRange" ).clientWidth;
 
-    document.write( "<br/><br/>" );
+    //document.write( "<br/><br/>" );
 
     canvas          = document.getElementById( "myCanvas" );
     ctx             = canvas.getContext( "2d" );

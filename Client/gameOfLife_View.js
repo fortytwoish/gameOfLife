@@ -207,7 +207,7 @@ function displayNotification(text, upTimeMs)
 //      User interaction
 //====================================================================================================
 
-//Maximizes the canvas' size while making sure that cells always are multiples of 1 pixel² in size. (Subpixels be ugly)
+
 function canvasClicked(evt)
 {
     var mousePos = getMousePos( canvas, evt );
@@ -389,7 +389,7 @@ function presetSelected(name)
 
     var preset = presets.get( basename );
 
-    previewCtx.clearRect( 0, 0, 250, 250 );
+    previewCtx.clearRect( 0, 0, 100, 100 );
     cursorCanvasCtx.clearRect( 0, 0, 128, 128 );
 
     if ( preset == null ) //"None" or unknown preset selected
@@ -404,7 +404,7 @@ function presetSelected(name)
     //(Subtract 1 to compensate for the 1-based coordinates)
     var xDim           = parseInt(Object.keys( preset.dimension )[0]);
     var maxDim         = Math.max( xDim - 1, parseInt(preset.dimension[xDim]) - 1 );
-    var cellSize       = Math.floor( 250 / maxDim );
+    var cellSize       = Math.floor( 100 / maxDim );
     var cursorCellSize = Math.floor( 128 / maxDim );
 
     //Iterate the preset's coordinates
@@ -440,6 +440,7 @@ function keyPressed(evt)
 //      Game Logic interaction
 //====================================================================================================
 
+//Maximizes the canvas' size while making sure that cells always are multiples of 1 pixel² in size. (Subpixels be ugly)
 function maximizeCanvas()
 {
     var canvas = document.getElementById( "myCanvas" );
@@ -452,9 +453,17 @@ function maximizeCanvas()
                        - canvas.style.marginLeft
                        - canvas.style.marginRight
                        - 150;
+					   
+   console.log("Max Width:" + canvasMaxWidth);
+					   
+	var canvasMaxHeight = window.innerHeight - document.getElementById("flexLeft").getBoundingClientRect().top;
+	
+	console.log("Max Height: " + canvasMaxHeight);
+	
+	var maxSquareDim = Math.min(canvasMaxWidth, canvasMaxHeight);
 
     var oldCellSize = cellsize;
-    cellsize = Math.floor( canvasMaxWidth / gameDim );
+    cellsize = Math.floor( maxSquareDim / gameDim );
 
     if ( oldCellSize != cellsize && cellsize > 0 ) //Only update if the cellsize changed for usability reasons
     {

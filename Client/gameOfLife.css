@@ -73,6 +73,7 @@ canvas
     display: -webkit-flex;
     display: flex;
     padding: 20px;
+	padding-bottom: 0;
     justify-content: space-between;
     align-items: flex-start;
     margin-top: 20px;
@@ -80,7 +81,7 @@ canvas
 
 #flexLeft
 {
-    width: 250px;
+    width: 100px;
     flex: 0 0 auto;
 }
 
@@ -93,7 +94,7 @@ canvas
 #flexRight
 {
     flex:0 0 auto;
-    width: 250px;
+    width: 150px;
 }
 
 #flexLeft input, #flexLeft select

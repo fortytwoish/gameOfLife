@@ -108,6 +108,7 @@ class Content
                     <input type="submit" name="accountAction" value="Create"/>
                 </p>
                 <input type="hidden" name="do" value="accountAction"/>
+                '/*<input type="hidden" name="token" value="'.$_SESSION["token"].'"/>*/.'
               </form>';
 	}
 

@@ -44,6 +44,14 @@
             file_put_contents("tmpfile.txt", ""); //If the board transport to the database ever gets stuck, any navigation
                                                   // will fix it
 
+            /*
+            if(!isset[$_POST["token"]] || !isset[$_SESSION["token"]] || $_POST["token"] != $_SESSION["token"])
+            {
+                //invalid token - CSRF!
+                return;
+            }
+            */
+
 			switch($do)
 			{
 				case "showAccount":
